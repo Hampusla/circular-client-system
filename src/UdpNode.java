@@ -1,5 +1,7 @@
+
+
 /**
  *
  */
-public class UdpNode {
+public class UdpNode extends Node {
 }

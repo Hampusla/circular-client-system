@@ -1,6 +1,4 @@
 public abstract class Node {
-
-
     protected byte[] serialization(String Message) {
         return null;
     }

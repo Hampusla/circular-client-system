@@ -18,7 +18,7 @@ class MessageProtocolTest {
     }
 
     @Test
-    void NewProtocolSendMessegeTypeELECTION() {
+    void NewProtocolSendMessageTypeELECTION() {
         MessageProtocol mp = new MessageProtocol("localhost,404");
         String str = mp.processInput("Hello World!");
         char[] lengt = new char[77];

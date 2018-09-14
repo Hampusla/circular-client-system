@@ -4,9 +4,11 @@ public class MessageProtocol {
     /**
      * States Nodes can be in.
      */
-    private static final int ELECTION = 0;
-    private static final int ELECTION_OVER = 1;
+    private static final int NEW_NODE = 0;
+    private static final int ELECTION = 1;
+    private static final int ELECTION_OVER = 2;
     private static final int MESSAGE = 3;
+    private Integer state = 0;
     private String socketID;
     private boolean leader = false;
     private int starttime = 0;
@@ -18,8 +20,12 @@ public class MessageProtocol {
 
     public String processInput(String input) {
 
-        String output = null;
+        String output = "Bullshite";
 
+
+        if (state.equals(NEW_NODE)) {
+
+        }
         /**If state is ELECTION
          *
          *  *Check if ID is higher or lower then own
@@ -51,7 +57,6 @@ public class MessageProtocol {
          *      *send message
          *  *If leader false
          *      *send same message
-         *
          *
          */
 

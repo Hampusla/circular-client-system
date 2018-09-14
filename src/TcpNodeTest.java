@@ -20,7 +20,7 @@ class TcpNodeTest {
     }
     @Test
     void incorrectParameters() {
-        
+
     }
     @Test
     void inConnection() {

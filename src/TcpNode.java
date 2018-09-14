@@ -1,6 +1,7 @@
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.net.*;
 import java.util.Scanner;
 
@@ -78,12 +79,34 @@ public class TcpNode extends Node{
             @Override
             public void run() {
                 /*Listen to the inputSocket. If a message is received use protocol to decide what to do */
+                /**
+                 * Gets the input stream object of the accepted
+                 * connection to enable reading from the socket.
+                 */
+                InputStream inputStream = null;
+                try {
+                    inputStream = inSocket.getInputStream();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                /**
+                 * Wrap the input stream in a Scanner for easier handling of text.
+                 */
+                Scanner scanner = new Scanner(inputStream);
+                /**
+                 * While there is a line (ended by '\n'), read it from stream and
+                 * print it to stdout.
+                 */
+                while (scanner.hasNextLine()) {
+                    System.out.println(scanner.nextLine());
+                }
             }
         };
         inputThread.start();
         Thread outputThread = new Thread() {
             @Override
             public void run() {
+                //TODO Add a read from stdin, and send it to the next node.
                 //While... Decide what we are going to send to the port...
             }
         };

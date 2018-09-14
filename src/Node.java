@@ -5,7 +5,7 @@ public abstract class Node {
         return null;
     }
 
-    protected String deserialization(byte[] buffer) {
-        return null;
+    protected String deserialization(byte[] bytes) {
+        return new String(bytes);
     }
 }

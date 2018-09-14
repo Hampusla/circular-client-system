@@ -1,8 +1,10 @@
+import java.util.Arrays;
+
 public abstract class Node {
 
 
-    protected byte[] serialization(String Message) {
-        return null;
+    protected byte[] serialization(String message) {
+        return message.getBytes();
     }
 
     protected String deserialization(byte[] bytes) {

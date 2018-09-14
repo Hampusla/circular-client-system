@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -14,33 +15,36 @@ public class TcpNode extends Node{
         int localPort, nextPort;
         String nextHost;
         if (argc.length != 3) {
-            //Kasta exception?
+            //Throw exception?
             System.err.println("Invalid number of arguments! Input should be on the following format: " +
                     "local-port next-host next-port");
             return;
         }
+        /*Create the local port... Check that the arguments are valid*/
         try {
             localPort = Integer.parseInt(argc[0]);
         }catch (NumberFormatException e) {
             System.err.println("Argument " + argc[0] + " must be an integer!");
             return;
         }
+        /*Create the port that we are going to connect to... Check that the arguments are valid*/
         try {
             nextPort = Integer.parseInt(argc[2]);
         }catch (NumberFormatException e) {
             System.err.println("Argument " + argc[2] + " must be an integer!");
             return;
         }
+        /*Skapa en adress */
         nextHost = argc[1];
         InetSocketAddress nextHostAdress = new InetSocketAddress(nextHost, nextPort);
 
-        /*Jag vill kolla om argument 2 aka argc[1] är skrivet som en IP adress eller som ett namn på en host,
-         *och om det är möjligt att ansluta till den angivna adressen/hosten*/
+        /*Check if argument 2 aka argc[1] is on the form of an IP adress or as a name of a host,
+         *Check if it is possible to connect to the adress/host*/
 
         Thread inputThread = new Thread() {
             @Override
             public void run() {
-                /*Skapa en port som TCP-noden ska lyssna till från första delen av args*/
+                /*Create a port that the TCP-node listens to*/
                 ServerSocket serverSocket;
                 Socket inSocket;
                 InputStream inputStream;
@@ -68,23 +72,21 @@ public class TcpNode extends Node{
                 try {
                     Socket outSocket = new Socket(nextHost, nextPort);
                     outSocket.connect(nextHostAdress);
+                    /*TODO find out what to do with the outPutStream*/
+                    OutputStream outputStream = new OutputStream() {
+                        @Override
+                        public void write(int b) throws IOException {
+
+                        }
+                    }
                 } catch (UnknownHostException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
+            //While... Decide what we are going to send to the port...
         };
-        //int port = Integer.parseInt(args[0]);
-        /*Skapa en adress */
-        /*Skapa en port att skicka till*/
-
-        /*Skapa socket*/
-
-        /*Skapa output stream*/
-
-        /*Skapa input stream*/
-
-        /*Skapa */
+        outputThread.start();
     }
 }

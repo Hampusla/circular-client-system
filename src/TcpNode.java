@@ -77,9 +77,7 @@ public class TcpNode extends Node{
         Thread inputThread = new Thread() {
             @Override
             public void run() {
-                /*Create a port that the TCP-node listens to*/
-                //while sats?
-                //Vänta på ett meddelande och sedan göra något när den får meddelandet.
+                /*Listen to the inputSocket. If a message is received use protocol to decide what to do */
             }
         };
         inputThread.start();

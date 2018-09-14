@@ -18,4 +18,16 @@ class TcpNodeTest {
     void deserialization() {
 
     }
+    @Test
+    void incorrectParameters() {
+        
+    }
+    @Test
+    void inConnection() {
+
+    }
+    @Test
+    void outConnection() {
+
+    }
 }

@@ -41,8 +41,7 @@ public class TcpNode extends Node{
             ipAddress = InetAddress.getByName(argc[1]);
             nextHostAddress = new InetSocketAddress(ipAddress, nextPort);
         } catch (UnknownHostException e) {
-            //TODO Write a better error message
-            System.err.println("Fail when creating a Socket adress from arguments!");
+            System.err.println("Error when creating a InetSocketAdress from argc[1]! Exiting...");
             e.printStackTrace();
             return;
         }
@@ -75,10 +74,8 @@ public class TcpNode extends Node{
                         System.out.println("outSocket created");
                         break; //Vet ej om denna ska vara här
                     } catch (IOException e) {
-                        //TODO fix what happens when an exception happens..
                         System.out.println("Creating outSocket failed");
                         //e.printStackTrace();
-                        //TODO FRÅGA! är kopplingen gjord efter detta eller ska jag använda metoden Socket.connect(nextHostAdress)
                     }
                 }
                 //When the connection is made the while loop will break and we will start doing the following:
@@ -105,7 +102,6 @@ public class TcpNode extends Node{
         while (true) {
             /*Try creating a connection to a client sending a request to the port that serverSocket is listening to.*/
             try {
-                //TODO fråga handledarna! Måste detta vara i run() på en separat tråd? Eftersom den kommer att vänta på en return från accept()
                 System.out.println("Calling accept on serverSocket aka accepting requests made to localPort: " + localPort);
                 inSocket = serverSocket.accept();
                 System.out.println("Created connection to inSocket!");

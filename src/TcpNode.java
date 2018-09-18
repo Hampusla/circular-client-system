@@ -33,16 +33,22 @@ public class TcpNode extends Node{
             System.err.println("Argument " + argc[2] + " must be an integer!");
             return;
         }
-        /*Create an InetAdress "ipAddress" using argc[1], Then create an InetSocketAddress using the InetAddress*/
+        /*Create an InetAdress "ipAddress" using the second argument,
+         *Then create an InetSocketAddress using the InetAddress,
+         *If the InetSocketAdress can not be created print error message and return*/
         InetAddress ipAddress;
         InetSocketAddress nextHostAddress;
         try {
             ipAddress = InetAddress.getByName(argc[1]);
             nextHostAddress = new InetSocketAddress(ipAddress, nextPort);
         } catch (UnknownHostException e) {
+            //TODO Write a better error message
+            System.err.println("Fail when creating a Socket adress from arguments!");
             e.printStackTrace();
             return;
         }
+
+
         /*Create the inSocket*/
         ServerSocket serverSocket;
         Socket inSocket, outSocket;

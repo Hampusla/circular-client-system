@@ -60,20 +60,23 @@ public class TcpNode extends Node{
         try {
             //Lyssnar efter en förfrågan om en koppling till porten localPort....
             serverSocket = new ServerSocket(localPort);
-            //När en koppling har gjorts skapas en socket som kan kommunicera över den etablerade TCP-kopplingen.
         } catch (IOException e) {
             System.err.println("Fail: Could not create the serverSocket on port: " + localPort + ". Exiting...");
             e.printStackTrace();
             return;
         }
+        //TODO Byt kanske ut true till typ boolean serverOn så att man kan stänga av den och sedan köra ServerSocket.close
         while (true) {
+            /*Try creating a connection to a client sending a request to the port that serverSocket is listening to.*/
             try {
                 //TODO fråga handledarna! Måste detta vara i run() på en separat tråd? Eftersom den kommer att vänta på en return från accept()
                 inSocket = serverSocket.accept();
                 Thread inThread = new Thread() {
                     @Override
                     public void run() {
-
+                        //Read incoming byte[]
+                        //Validate the incomming message
+                        //Translate the message
                     }
                 };
                 inThread.start();
@@ -81,61 +84,22 @@ public class TcpNode extends Node{
                 //TODO write an actual error message and decide what action to take..
                 System.err.println("Exception when accepting....");
             }
-        }
-
-
-
-        /*Create the outSocket*/
-        try {
-            /*Create an outSocket*/
-            outSocket = new Socket(ipAddress, nextPort);
-            /*Connect the outSocket to the IP-address and port of the next Node*/
-            outSocket.connect(nextHostAddress);
-        } catch (UnknownHostException e) {
-            System.err.println("Fail: Error when making and connecting the outSocket");
-            e.printStackTrace();
-            return;
-        } catch (IOException e) {
-            System.err.println("Fail: Error when making and connecting the outSocket");
-            e.printStackTrace();
-            return;
-        }
-
-        Thread inputThread = new Thread() {
-            @Override
-            public void run() {
-                /*Listen to the inputSocket. If a message is received use protocol to decide what to do */
-                /**
-                 * Gets the input stream object of the accepted
-                 * connection to enable reading from the socket.
-                 */
-                InputStream inputStream = null;
-                try {
-                    inputStream = inSocket.getInputStream();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                /**
-                 * Wrap the input stream in a Scanner for easier handling of text.
-                 */
-                Scanner scanner = new Scanner(inputStream);
-                /**
-                 * While there is a line (ended by '\n'), read it from stream and
-                 * print it to stdout.
-                 */
-                while (scanner.hasNextLine()) {
-                    System.out.println(scanner.nextLine());
-                }
+            /*Try making a socket which connects to the next Node*/
+            try {
+                outSocket = new Socket(ipAddress, nextPort);
+                Thread outThread = new Thread() {
+                    @Override
+                    public void run() {
+                        //Use protocol to decide what to do based on the message, and what state we are in.
+                        //Translate message back to bytes
+                        //Send the message to the next node
+                    }
+                };
+            } catch (IOException e) {
+                //TODO fix what happens when an exception happens..
+                e.printStackTrace();
+                //TODO FRÅGA! är kopplingen gjord efter detta eller ska jag använda metoden Socket.connect(nextHostAdress)
             }
-        };
-        inputThread.start();
-        Thread outputThread = new Thread() {
-            @Override
-            public void run() {
-                //TODO Add a read from stdin, and send it to the next node.
-                //While... Decide what we are going to send to the port...
-            }
-        };
-        outputThread.start();
+        }
     }
 }

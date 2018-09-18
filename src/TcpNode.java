@@ -1,5 +1,3 @@
-import com.sun.tools.jdeprscan.scan.Scan;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,6 +5,7 @@ import java.net.*;
 import java.util.Scanner;
 
 public class TcpNode extends Node {
+    //TODO Should probably split stuff up in methods, because this main is pure chaos...
 
     public static void main(String argc[]) {
         /*Argument should be in the following format:
@@ -116,9 +115,9 @@ public class TcpNode extends Node {
         InputStream inputStream;
         while (true) {
             try {
+                byte[] byteMessage = new byte[100];
                 inputStream = inSocket.getInputStream();
-                System.out.println(inputStream.read());
-                //TODO Read incoming messages
+                inputStream.read(byteMessage);
                 /*Incoming messages will be byte arrays,
                  *and should be in the format that the Message Protocol specifies*/
                 //TODO Validate the incomming message (how do i do that before translating it?)

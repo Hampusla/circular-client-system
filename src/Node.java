@@ -1,6 +1,5 @@
 public abstract class Node {
 
-
     protected byte[] serialization(String message) {
         return message.getBytes();
     }

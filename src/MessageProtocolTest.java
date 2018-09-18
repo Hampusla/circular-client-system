@@ -20,7 +20,7 @@ class MessageProtocolTest {
     @Test
     void NewProtocolSendMessageTypeELECTION() {
         MessageProtocol mp = new MessageProtocol("localhost,404");
-        String str = mp.processInput("Hello World!");
+        String str = mp.processInput("Hello World!\n");
         char[] lengt = new char[77];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);

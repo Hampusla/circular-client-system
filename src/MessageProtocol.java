@@ -1,4 +1,6 @@
+import java.lang.reflect.Array;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 public class MessageProtocol {
 
@@ -12,7 +14,8 @@ public class MessageProtocol {
     private Integer state = 0;
     private String socketID;
     private boolean leader = false;
-    private int starttime = 0;
+    private long starttime = 0;
+    private int roundCounter = 0;
 
     public MessageProtocol(String socketID) {
         this.socketID = socketID;
@@ -25,12 +28,28 @@ public class MessageProtocol {
         String output = "Bullshite";
 
         String[] messageParts = input.split("\n");
+
+
+        if (messageParts.length == 1) {
+            String firstPart = messageParts[0];
+            messageParts = new String[3];
+            messageParts[0] = firstPart;
+            messageParts[1] = "";
+        }
+
         System.out.println(messageParts[0]);
-        System.out.println(messageParts[1]);
-        System.out.println(messageParts[2]);
-
+//        System.out.println(messageParts[1]);
+//        System.out.println(messageParts[2]);
+        messageChange:
         if (state.equals(NEW_NODE)) {
-
+            if (messageParts[0].equals("ELECTION")) {
+                state = ELECTION;
+            }else {
+                state = ELECTION;
+                messageParts[0] = "ELECTION";
+                messageParts[1] = socketID + "\n";
+                break messageChange;
+            }
         }else if (
             state.equals(ELECTION) && messageParts[0].equals("ELECTION_OVER")) {
             state = ELECTION_OVER;
@@ -62,38 +81,52 @@ public class MessageProtocol {
              *      *Set state to MESSAGE
              *      *Set leader to true
              *      *send a chosen message
+             *      *start timer
              *  *If ID is different
              *      *set state to MESSAGE
              *      *send the same message
-             *      *start timer
              */
             if(messageParts[1].compareTo(socketID) == 0) {
                 state = MESSAGE;
                 leader = true;
                 messageParts[0] = "MESSAGE";
+                starttime = System.currentTimeMillis();
+            }else {
+                state = MESSAGE;
+            }
+        }else if(state.equals(MESSAGE) && leader) {
+            /**
+             * If state is MESSAGE
+             *
+             *  *If leader is true
+             *      *count up round counter
+             *      *if counter is x % 1000 = 0 then
+             *          *Write in terminal the time per round
+             *          *Take new starttime
+             *      *send message
+             *  *If leader false
+             *      *send same message
+             *
+             */
+            roundCounter++;
+            if((roundCounter % 1000) == 0) {
+                long time = System.currentTimeMillis() - starttime;
+                System.out.println("Time per round" + time/1000);
+                starttime = System.currentTimeMillis();
             }
         }
-
-
-
-         /**
-         * If state is MESSAGE
-         *
-         *  *If leader is true
-         *      *count up round counter
-         *      *if counter is x % 1000 = 0 then
-         *          *Write in terminal the time per round
-         *          *Take new starttime
-         *      *send message
-         *  *If leader false
-         *      *send same message
-         *
-         */
 
         /**
          * Add together messagePart 1 and 2
          * fill rest with |0 to 100 chars.
          */
+
+        output = String.join(
+            "\n", messageParts[0], messageParts[1]);
+        char[] filler = new char[100 - output.length()];
+        Arrays.fill(filler, '\0');
+        output = output.concat(new String(filler));
+
         return output;
     }
 

@@ -50,7 +50,11 @@ public class TcpNode extends Node{
 
 
         /*Create the inSocket*/
+        /*serverSocket is the socket that is listening to the port and waiting for a request to make a connection*/
         ServerSocket serverSocket;
+        /*inSocket is the socket that will be connected to the client of the previous node when a request for connection is made to the serverSocket*/
+        /*outSocket is the socket that will try to connect to the server at the next node.*/
+        //TODO not really a todo but should i change the names to something more descriptive?
         Socket inSocket, outSocket;
         InputStream inputStream;
         try {

@@ -61,13 +61,30 @@ public class TcpNode extends Node{
             //Lyssnar efter en förfrågan om en koppling till porten localPort....
             serverSocket = new ServerSocket(localPort);
             //När en koppling har gjorts skapas en socket som kan kommunicera över den etablerade TCP-kopplingen.
-            //TODO fråga! Måste detta vara i run() på en separat tråd? Eftersom den kommer att vänta på en return från accept()
-            inSocket = serverSocket.accept();
         } catch (IOException e) {
             System.err.println("Fail: Could not create the serverSocket on port: " + localPort + ". Exiting...");
             e.printStackTrace();
             return;
         }
+        while (true) {
+            try {
+                //TODO fråga handledarna! Måste detta vara i run() på en separat tråd? Eftersom den kommer att vänta på en return från accept()
+                inSocket = serverSocket.accept();
+                Thread inThread = new Thread() {
+                    @Override
+                    public void run() {
+
+                    }
+                };
+                inThread.start();
+            } catch (IOException e) {
+                //TODO write an actual error message and decide what action to take..
+                System.err.println("Exception when accepting....");
+            }
+        }
+
+
+
         /*Create the outSocket*/
         try {
             /*Create an outSocket*/

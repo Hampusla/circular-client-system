@@ -82,15 +82,18 @@ public class TcpNode extends Node{
                     }
                 }
                 //When the connection is made the while loop will break and we will start doing the following:
-                try {
-                    OutputStream outputStream = outSocket.getOutputStream();
-                    Scanner s = new Scanner(System.in);
-                    while (s.hasNextLine()) {
-                        outputStream.write(s.next().getBytes());
+                while (true) {
+                    try {
+                        OutputStream outputStream = outSocket.getOutputStream();
+                        Scanner s = new Scanner(System.in);
+                        while (s.hasNextLine()) {
+                            outputStream.write(s.next().getBytes());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
+
                 //Use protocol to decide what to do based on the message, and what state we are in.
                 //Translate message back to bytes
                 //Send the message to the next node
@@ -112,15 +115,19 @@ public class TcpNode extends Node{
                     public void run() {
                         System.out.println("In inThread: " + this.getName());
                         InputStream inputStream;
-                        try {
-                            inputStream = finalInSocket.getInputStream();
-                            Scanner scanner = new Scanner(inputStream);
-                            while (scanner.hasNextLine()) {
-                                System.out.println(scanner.nextLine());
+                        while (true) {
+                            try {
+                                inputStream = finalInSocket.getInputStream();
+                                System.out.println(inputStream.read());
+//                            Scanner scanner = new Scanner(inputStream);
+//                            while (scanner.hasNextLine()) {
+//                                System.out.println(scanner.nextLine());
+//                            }
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
-                        } catch (IOException e) {
-                            e.printStackTrace();
                         }
+
 
                         //Read incoming byte[]
                         //Validate the incomming message

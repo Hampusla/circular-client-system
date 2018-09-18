@@ -64,8 +64,7 @@ public class TcpNode extends Node{
             //TODO fråga! Måste detta vara i run() på en separat tråd? Eftersom den kommer att vänta på en return från accept()
             inSocket = serverSocket.accept();
         } catch (IOException e) {
-            /*TODO fix the error message!*/
-            System.err.println("Fail: Error when making and connecting the inSocket");
+            System.err.println("Fail: Could not create the serverSocket on port: " + localPort + ". Exiting...");
             e.printStackTrace();
             return;
         }

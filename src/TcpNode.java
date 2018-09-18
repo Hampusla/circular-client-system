@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.*;
 import java.util.Scanner;
 
@@ -47,25 +48,22 @@ public class TcpNode extends Node{
         }
         System.out.println("All arguments validated.");
 
-        /*Create the inSocket*/
         /*serverSocket is the socket that is listening to the port and waiting for a request to make a connection*/
         ServerSocket serverSocket;
-        /*inSocket is the socket that will be connected to the client of the previous node when a request for connection is made to the serverSocket*/
-        /*outSocket is the socket that will try to connect to the server at the next node.*/
-        //TODO not really a todo but should i change the names to something more descriptive?
-        Socket inSocket;
-        InputStream inputStream;
         try {
-            //Lyssnar efter en förfrågan om en koppling till porten localPort....
+            //Skapar en ServerSocket som lyssnar efter en förfrågan om en koppling till porten localPort....
             serverSocket = new ServerSocket(localPort);
         } catch (IOException e) {
             System.err.println("Fail: Could not create the serverSocket on port: " + localPort + ". Exiting...");
             e.printStackTrace();
             return;
         }
+        //TODO not really a todo but should i change the names of inSocket and outSocket to something more descriptive?
         System.out.println("Listening to serverSocket for requests on port " + localPort);
-        //TODO Byt kanske ut true till typ boolean serverOn så att man kan stänga av den och sedan köra ServerSocket.close
-        Thread outThread = new Thread() {
+
+        /*Create the outSocket*/
+        //TODO FRÅGA är det så här man ska skriva? jag la det i en egen tråd för att man ska kunna göra både outSocket kopplingen och inSocket kopplingen samtidigt...
+        new Thread() {
             Socket outSocket;
             @Override
             public void run() {
@@ -83,12 +81,24 @@ public class TcpNode extends Node{
                         //TODO FRÅGA! är kopplingen gjord efter detta eller ska jag använda metoden Socket.connect(nextHostAdress)
                     }
                 }
+                //When the connection is made the while loop will break and we will start doing the following:
+                try {
+                    OutputStream outputStream = outSocket.getOutputStream();
+                    Scanner s = new Scanner(System.in);
+                    while (s.hasNextLine()) {
+                        outputStream.write(s.next().getBytes());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 //Use protocol to decide what to do based on the message, and what state we are in.
                 //Translate message back to bytes
                 //Send the message to the next node
             }
-        };
-        outThread.start();
+        }.start();
+
+        /*Create the inSocket*/
+        Socket inSocket;
         while (true) {
             /*Try creating a connection to a client sending a request to the port that serverSocket is listening to.*/
             try {
@@ -96,21 +106,31 @@ public class TcpNode extends Node{
                 System.out.println("Calling accept on serverSocket aka accepting requests made to localPort: " + localPort);
                 inSocket = serverSocket.accept();
                 System.out.println("Created connection to inSocket!");
-                break;
+                Socket finalInSocket = inSocket; //TODO find a better way to do this
+                new Thread() {
+                    @Override
+                    public void run() {
+                        System.out.println("In inThread: " + this.getName());
+                        InputStream inputStream;
+                        try {
+                            inputStream = finalInSocket.getInputStream();
+                            Scanner scanner = new Scanner(inputStream);
+                            while (scanner.hasNextLine()) {
+                                System.out.println(scanner.nextLine());
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        //Read incoming byte[]
+                        //Validate the incomming message
+                        //Translate the message
+                    }
+                }.start();
             } catch (IOException e) {
                 //TODO write an actual error message and decide what action to take..
                 System.err.println("Exception when accepting....");
             }
-            Thread inThread = new Thread() {
-                @Override
-                public void run() {
-                    System.out.println("In inThread");
-                    //Read incoming byte[]
-                    //Validate the incomming message
-                    //Translate the message
-                }
-            };
-            inThread.start();
         }
     }
 }

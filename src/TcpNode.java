@@ -1,10 +1,12 @@
+import com.sun.tools.jdeprscan.scan.Scan;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
 import java.util.Scanner;
 
-public class TcpNode extends Node{
+public class TcpNode extends Node {
 
     public static void main(String argc[]) {
         /*Argument should be in the following format:
@@ -20,7 +22,7 @@ public class TcpNode extends Node{
          *If the argument is not in the correct format print error message and return*/
         try {
             localPort = Integer.parseInt(argc[0]);
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.err.println("Argument " + argc[0] + " must be an integer!");
             return;
         }
@@ -28,7 +30,7 @@ public class TcpNode extends Node{
          *If the argument is not in the correct format print error message and return*/
         try {
             nextPort = Integer.parseInt(argc[2]);
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             System.err.println("Argument " + argc[2] + " must be an integer!");
             return;
         }
@@ -64,6 +66,7 @@ public class TcpNode extends Node{
         //TODO FRÅGA är det så här man ska skriva? jag la det i en egen tråd för att man ska kunna göra både outSocket kopplingen och inSocket kopplingen samtidigt...
         new Thread() {
             Socket outSocket;
+
             @Override
             public void run() {
                 /*Try making a socket which connects to the next Node*/
@@ -79,6 +82,9 @@ public class TcpNode extends Node{
                     }
                 }
                 //When the connection is made the while loop will break and we will start doing the following:
+                //TODO Use protocol to decide what to do based on the message, and what state we are in.
+                //TODO Translate message to bytes
+                //TODO Send the message to the next node
                 while (true) {
                     try {
                         OutputStream outputStream = outSocket.getOutputStream();
@@ -90,10 +96,6 @@ public class TcpNode extends Node{
                         e.printStackTrace();
                     }
                 }
-
-                //Use protocol to decide what to do based on the message, and what state we are in.
-                //Translate message back to bytes
-                //Send the message to the next node
             }
         }.start();
 
@@ -105,34 +107,24 @@ public class TcpNode extends Node{
                 System.out.println("Calling accept on serverSocket aka accepting requests made to localPort: " + localPort);
                 inSocket = serverSocket.accept();
                 System.out.println("Created connection to inSocket!");
-                Socket finalInSocket = inSocket; //TODO find a better way to do this
-                new Thread() {
-                    @Override
-                    public void run() {
-                        System.out.println("In inThread: " + this.getName());
-                        InputStream inputStream;
-                        while (true) {
-                            try {
-                                inputStream = finalInSocket.getInputStream();
-                                System.out.println(inputStream.read());
-//                            Scanner scanner = new Scanner(inputStream);
-//                            while (scanner.hasNextLine()) {
-//                                System.out.println(scanner.nextLine());
-//                            }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        }
-
-
-                        //Read incoming byte[]
-                        //Validate the incomming message
-                        //Translate the message
-                    }
-                }.start();
+                break;
             } catch (IOException e) {
                 //TODO write an actual error message and decide what action to take..
                 System.err.println("Exception when accepting....");
+            }
+        }
+        InputStream inputStream;
+        while (true) {
+            try {
+                inputStream = inSocket.getInputStream();
+                System.out.println(inputStream.read());
+                //TODO Read incoming messages
+                /*Incoming messages will be byte arrays,
+                 *and should be in the format that the Message Protocol specifies*/
+                //TODO Validate the incomming message (how do i do that before translating it?)
+                //TODO Translate the message to String
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

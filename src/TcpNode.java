@@ -26,7 +26,7 @@ public class TcpNode extends Node {
         /*Create the outSocket*/
         //TODO FRÅGA är det så här man ska skriva? jag la det i en egen tråd för att man ska kunna göra både outSocket kopplingen och inSocket kopplingen samtidigt...
         new ClientThread(nextHostIP, nextPort).start();
-        new ServerThread(serverSocket, localPort).start();
+        new ServerThread(serverSocket, localPort, inQueue).start();
     }
 
     class ServerThread extends Thread {
@@ -60,11 +60,17 @@ public class TcpNode extends Node {
                 try {
                     byte[] byteMessage = new byte[100];
                     inputStream = inSocket.getInputStream();
-                    System.out.println(inputStream.read(byteMessage));
+                    //TODO maybe make a final int for the length of the byte array
+                    int amountOfBytesInByteMessage = inputStream.read(byteMessage, 0, 100);
+                    for (int i=0; i<100; i++) {
+                        System.out.print(byteMessage[i]);
+                    }
+                    //TODO FRÅGA: Does this^ reading of the byte[] work or will there be a problem if many messages are sent at the same time?
                     /*Incoming messages will be byte arrays,
                      *and should be in the format that the Message Protocol specifies*/
                     //TODO Validate the incomming message (how do i do that before translating it?)
                     //TODO Translate the message to String
+                    String message = new String(byteMessage);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -99,9 +105,14 @@ public class TcpNode extends Node {
             //TODO Use protocol to decide what to do based on the message, and what state we are in.
             //TODO Translate message to bytes
             //TODO Send the message to the next node
+            byte[] arr = new byte[100];
+            for (int i=0; i<10; i++) {
+                arr[i] = 104;
+            }
             while (true) {
                 try {
                     OutputStream outputStream = outSocket.getOutputStream();
+                    outputStream.write(arr);
                     Scanner s = new Scanner(System.in);
                     while (s.hasNextLine()) {
                         outputStream.write(s.next().getBytes());

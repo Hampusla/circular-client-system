@@ -3,9 +3,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
 import java.util.Scanner;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 public class TcpNode extends Node {
     public TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
+        //TODO Decide if this is a good class for the queue and what capacity is neccessary.
+        BlockingQueue inQueue = new ArrayBlockingQueue<String>(10);
         /*serverSocket is the socket that is listening to the port and waiting for a request to make a connection*/
         ServerSocket serverSocket;
         try {
@@ -29,10 +33,12 @@ public class TcpNode extends Node {
         ServerSocket serverSocket;
         int localPort;
         Socket inSocket;
-        public ServerThread(ServerSocket serverSocket, int localPort) {
+        BlockingQueue inQueue;
+        public ServerThread(ServerSocket serverSocket, int localPort, BlockingQueue inQueue) {
             super();
             this.serverSocket = serverSocket;
             this.localPort = localPort;
+            this.inQueue = inQueue; //Kommer detta fungera?? Kommer detta bli en ny likadan kö eller kommer den att peka till den "riktiga" inQueue...Finns det något bättre sätt
         }
         @Override
         public void run() {
@@ -69,6 +75,7 @@ public class TcpNode extends Node {
         Socket outSocket;
         InetAddress nextHostIP;
         int nextPort;
+
         public ClientThread(InetAddress nextHostIP, int nextPort) {
             super();
             this.nextHostIP = nextHostIP;
@@ -105,8 +112,6 @@ public class TcpNode extends Node {
             }
         }
     }
-
-
     public static void main(String argc[]) {
         /*Argument should be in the following format:
          *Java: java {TcpNode,UdpNode} local-port next-host next-port*/

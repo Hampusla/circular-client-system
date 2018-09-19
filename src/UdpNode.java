@@ -1,7 +1,4 @@
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
+import java.net.*;
 
 /**
  *
@@ -31,9 +28,37 @@ public class UdpNode extends Node {
             return;
         }
 
+        //TODO Create Datagram Packets to be used.
+
+        DatagramPacket rcdp;
+        DatagramPacket sndp;
+
         //TODO Create loop for setup
 
         //TODO Create receive and send loop
+        while (true) {
+            //Create packet to receive in
+            rcdp = new DatagramPacket(new byte[100], 100);
+
+            //Receive packet
+            datagramSocket.receive(rcdp);
+
+            //deserialize
+            String input = this.deserialization(rcdp.getData());
+
+            //Check what to do
+            String output = messageProtocol.processInput(input);
+
+            //serialize
+            byte[] outData = this.serialization(output);
+
+            // pack Data
+            sndp = new DatagramPacket(
+                outData, outData.length, nextHost, nextPort);
+
+            //send
+            datagramSocket.send(sndp);
+        }
 
         //TODO
     }

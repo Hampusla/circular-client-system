@@ -40,15 +40,12 @@ public class MessageProtocol {
         System.out.println(messageParts[0]);
 //        System.out.println(messageParts[1]);
 //        System.out.println(messageParts[2]);
-        messageChange:
         if (state.equals(NEW_NODE)) {
             if (messageParts[0].equals("ELECTION")) {
                 state = ELECTION;
             }else {
                 state = ELECTION;
                 messageParts[0] = "ELECTION";
-                messageParts[1] = socketID + "\n";
-                break messageChange;
             }
         }if (
             state.equals(ELECTION) && messageParts[0].equals("ELECTION_OVER")) {
@@ -65,12 +62,11 @@ public class MessageProtocol {
              *      *Set state to Election_OVER
              *      * Use own ID
              */
-            if(messageParts[1].compareTo(socketID) > 0) {
+            System.out.println(messageParts[1].compareTo(socketID));
+            if(messageParts[1].compareTo(socketID) < 0) {
                 messageParts[1] = new String(socketID);
             }else if(messageParts[1].compareTo(socketID) == 0) {
-                state = ELECTION_OVER;
                 messageParts[0] = "ELECTION_OVER";
-                messageParts[1] = new String(socketID);
             }
         }if(state.equals(ELECTION_OVER)) {
             /**
@@ -125,6 +121,7 @@ public class MessageProtocol {
         output = String.join(
             "\n", messageParts[0], messageParts[1]);
         output = output.concat("\n");
+        System.out.println(output.length() + ", " + (100 - output.length()));
         char[] filler = new char[100 - output.length()];
         Arrays.fill(filler, '\0');
         output = output.concat(new String(filler));

@@ -21,7 +21,7 @@ class MessageProtocolTest {
     void NewProtocolSendMessageTypeELECTION() {
         MessageProtocol mp = new MessageProtocol("localhost,404");
         String str = mp.processInput("Hello World!\n");
-        char[] lengt = new char[76];
+        char[] lengt = new char[77];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String answer = "ELECTION\n" +
@@ -33,7 +33,7 @@ class MessageProtocolTest {
     @Test
     void NewProtocolRunsElectionSectionIfElectionStart() {
         MessageProtocol mp = new MessageProtocol("localhost,404");
-        char[] lengt = new char[76];
+        char[] lengt = new char[77];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION\n" +
@@ -47,9 +47,9 @@ class MessageProtocolTest {
 
     @Test
     void ProtocolWillChangeToBetterLeaderUnderELECTION() {
-        MessageProtocol mp = new MessageProtocol("localhost, 404");
+        MessageProtocol mp = new MessageProtocol("localhost,404");
         mp.processInput("Hello World!\n");
-        char[] lengt = new char[76];
+        char[] lengt = new char[77];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION\n" +
@@ -61,29 +61,29 @@ class MessageProtocolTest {
 
     @Test
     void WillChangeToELECTION_OVERIfGivenOwnID() {
-        MessageProtocol mp = new MessageProtocol("localhost, 404");
+        MessageProtocol mp = new MessageProtocol("localhost,404");
         mp.processInput("Hello World!\n");
-        char[] lengt = new char[76];
+        char[] lengt = new char[77];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION\n" +
             "localhost,404\n" + extra;
         String mpAnswer = mp.processInput(message);
 
-        lengt = new char[71];
+        lengt = new char[72];
         Arrays.fill(lengt, '\0');
         extra = new String(lengt);
         String answer = "ELECTION_OVER\n" +
-            "localhost,404" + extra;
+            "localhost,404\n" + extra;
 
         assertEquals(answer, mpAnswer);
     }
 
     @Test
     void WIllChanceToEleOverIfGivenELECTION_OVER() {
-        MessageProtocol mp = new MessageProtocol("localhost, 404");
+        MessageProtocol mp = new MessageProtocol("localhost,404");
         mp.processInput("Hello World!\n");
-        char[] lengt = new char[71];
+        char[] lengt = new char[72];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION_OVER\n" +
@@ -95,9 +95,9 @@ class MessageProtocolTest {
 
     @Test
     void WillContinueEleOverIfNotGivenOwnID() {
-        MessageProtocol mp = new MessageProtocol("localhost, 404");
+        MessageProtocol mp = new MessageProtocol("localhost,404");
         mp.processInput("Hello World!\n");
-        char[] lengt = new char[71];
+        char[] lengt = new char[72];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION_OVER\n" +
@@ -110,9 +110,9 @@ class MessageProtocolTest {
 
     @Test
     void WillStartSendingMessageIfLeader() {
-        MessageProtocol mp = new MessageProtocol("localhost, 404");
+        MessageProtocol mp = new MessageProtocol("localhost,404");
         mp.processInput("Hello World!\n");
-        char[] lengt = new char[76];
+        char[] lengt = new char[77];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION\n" +
@@ -131,9 +131,9 @@ class MessageProtocolTest {
 
     @Test
     void WillSendMessageIfNotLeader() {
-        MessageProtocol mp = new MessageProtocol("localhost, 404");
+        MessageProtocol mp = new MessageProtocol("localhost,404");
         mp.processInput("Hello World!\n");
-        char[] lengt = new char[71];
+        char[] lengt = new char[72];
         Arrays.fill(lengt, '\0');
         String extra = new String(lengt);
         String message = "ELECTION_OVER\n" +

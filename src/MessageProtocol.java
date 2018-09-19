@@ -50,10 +50,10 @@ public class MessageProtocol {
                 messageParts[1] = socketID + "\n";
                 break messageChange;
             }
-        }else if (
+        }if (
             state.equals(ELECTION) && messageParts[0].equals("ELECTION_OVER")) {
             state = ELECTION_OVER;
-        }else if (state.equals(ELECTION)) {
+        }if (state.equals(ELECTION)) {
             /**If state is ELECTION
              *
              *  *Check so message stat is ELECTION
@@ -72,7 +72,7 @@ public class MessageProtocol {
                 messageParts[0] = "ELECTION_OVER";
                 messageParts[1] = new String(socketID);
             }
-        }else if(state.equals(ELECTION_OVER)) {
+        }if(state.equals(ELECTION_OVER)) {
             /**
              * If state is ELECTION_OVER
              *
@@ -90,11 +90,12 @@ public class MessageProtocol {
                 state = MESSAGE;
                 leader = true;
                 messageParts[0] = "MESSAGE";
+                messageParts[1] = "This is a message";
                 starttime = System.currentTimeMillis();
             }else {
                 state = MESSAGE;
             }
-        }else if(state.equals(MESSAGE) && leader) {
+        }if(state.equals(MESSAGE) && leader) {
             /**
              * If state is MESSAGE
              *
@@ -123,6 +124,7 @@ public class MessageProtocol {
 
         output = String.join(
             "\n", messageParts[0], messageParts[1]);
+        output = output.concat("\n");
         char[] filler = new char[100 - output.length()];
         Arrays.fill(filler, '\0');
         output = output.concat(new String(filler));

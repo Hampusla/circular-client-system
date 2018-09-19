@@ -1,4 +1,3 @@
-import com.sun.tools.jdeprscan.scan.Scan;
 
 import java.io.IOException;
 import java.io.InputStream;

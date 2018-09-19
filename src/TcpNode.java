@@ -1,40 +1,38 @@
 //TODO fix javadoc
+//TODO ska vi ha något som avslutar programmet eller ska det endast göras om man terminerar processen?
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.*;
-import java.util.Scanner;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class TcpNode extends Node {
 
-    public TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
+    private TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
         //TODO Decide if this is a good class for the queue and what capacity is neccessary.
-        BlockingQueue inQueue = new ArrayBlockingQueue<String>(10);
-        /*serverSocket is the socket that is listening to the port and waiting for a request to make a connection*/
+        BlockingQueue messageQueue = new ArrayBlockingQueue<String>(10);
         ServerSocket serverSocket;
         try {
             //Skapar en ServerSocket som lyssnar efter en förfrågan om en koppling till porten localPort....
             serverSocket = new ServerSocket(localPort);
         } catch (IOException e) {
-            System.err.println("Fail: Could not create the serverSocket on port: " + localPort + ". Exiting...");
-            e.printStackTrace();
+            System.err.println("Fail when creating the serverSocket on port: " + localPort + ". Exiting...");
             return;
         }
         //TODO not really a todo but should i change the names of inSocket and outSocket to something more descriptive?
         System.out.println("Listening to serverSocket for requests on port " + localPort);
 
         /*Create the outSocket*/
-        new ClientThread(nextHostIP, nextPort, inQueue).start();
-        new ServerThread(serverSocket, localPort, inQueue).start();
+        new ClientThread(nextHostIP, nextPort, messageQueue).start();
+        new ServerThread(serverSocket, localPort, messageQueue).start();
     }
     class ServerThread extends Thread {
         ServerSocket serverSocket;
         int localPort;
         Socket inSocket;
         BlockingQueue inQueue;
-        public ServerThread(ServerSocket serverSocket, int localPort, BlockingQueue inQueue) {
+        ServerThread(ServerSocket serverSocket, int localPort, BlockingQueue inQueue) {
             super();
             this.serverSocket = serverSocket;
             this.localPort = localPort;
@@ -58,12 +56,14 @@ public class TcpNode extends Node {
                     byte[] byteMessage = new byte[100];
                     InputStream inputStream = inSocket.getInputStream();
                     //TODO maybe make a final int for the length of the byte array
-                    inputStream.read(byteMessage, 0, 100);
+                    //TODO Use lengthOfByteMessage int for verification?
+                    int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
                     //TODO FRÅGA: Does this^ reading of the byte[] work or will there be a problem if many messages are sent at the same time? (Do i need to use a queue in some way?)
                     //TODO Validate the incoming message
                     String message = new String(byteMessage);
                     inQueue.put(message);
                 } catch (IOException e) {
+                    //TODO should we do something more in these catches?
                     e.printStackTrace();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -76,7 +76,7 @@ public class TcpNode extends Node {
         InetAddress nextHostIP;
         int nextPort;
         BlockingQueue<String> inQueue;
-        public ClientThread(InetAddress nextHostIP, int nextPort, BlockingQueue inQueue) {
+        ClientThread(InetAddress nextHostIP, int nextPort, BlockingQueue inQueue) {
             super();
             this.nextHostIP = nextHostIP;
             this.nextPort = nextPort;

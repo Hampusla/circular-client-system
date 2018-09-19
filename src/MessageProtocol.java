@@ -37,9 +37,10 @@ public class MessageProtocol {
             messageParts[1] = "";
         }
 
-        System.out.println(messageParts[0]);
-//        System.out.println(messageParts[1]);
-//        System.out.println(messageParts[2]);
+        if (messageParts[0].equals("RESEND_FIRST")) {
+            state = NEW_NODE;
+        }
+
         if (state.equals(NEW_NODE)) {
             if (messageParts[0].equals("ELECTION")) {
                 state = ELECTION;
@@ -62,7 +63,6 @@ public class MessageProtocol {
              *      *Set state to Election_OVER
              *      * Use own ID
              */
-            System.out.println(messageParts[1].compareTo(socketID));
             if(messageParts[1].compareTo(socketID) < 0) {
                 messageParts[1] = new String(socketID);
             }else if(messageParts[1].compareTo(socketID) == 0) {
@@ -108,7 +108,7 @@ public class MessageProtocol {
             roundCounter++;
             if((roundCounter % 1000) == 0) {
                 long time = System.currentTimeMillis() - starttime;
-                System.out.println("Time per round" + time/1000);
+                System.out.println("Time per round " + time/100000);
                 starttime = System.currentTimeMillis();
             }
         }
@@ -121,7 +121,6 @@ public class MessageProtocol {
         output = String.join(
             "\n", messageParts[0], messageParts[1]);
         output = output.concat("\n");
-        System.out.println(output.length() + ", " + (100 - output.length()));
         char[] filler = new char[100 - output.length()];
         Arrays.fill(filler, '\0');
         output = output.concat(new String(filler));

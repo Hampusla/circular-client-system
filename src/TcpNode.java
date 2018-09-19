@@ -1,3 +1,4 @@
+//TODO fix javadoc
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -7,6 +8,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class TcpNode extends Node {
+
     public TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
         //TODO Decide if this is a good class for the queue and what capacity is neccessary.
         BlockingQueue inQueue = new ArrayBlockingQueue<String>(10);
@@ -28,7 +30,6 @@ public class TcpNode extends Node {
         new ClientThread(nextHostIP, nextPort).start();
         new ServerThread(serverSocket, localPort, inQueue).start();
     }
-
     class ServerThread extends Thread {
         ServerSocket serverSocket;
         int localPort;
@@ -71,7 +72,10 @@ public class TcpNode extends Node {
                     //TODO Validate the incomming message (how do i do that before translating it?)
                     //TODO Translate the message to String
                     String message = new String(byteMessage);
+                    inQueue.put(message);
                 } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }

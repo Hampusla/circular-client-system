@@ -26,7 +26,6 @@ public class TcpNode extends Node {
         System.out.println("Listening to serverSocket for requests on port " + localPort);
 
         /*Create the outSocket*/
-        //TODO FRÅGA är det så här man ska skriva? jag la det i en egen tråd för att man ska kunna göra både outSocket kopplingen och inSocket kopplingen samtidigt...
         new ClientThread(nextHostIP, nextPort, inQueue).start();
         new ServerThread(serverSocket, localPort, inQueue).start();
     }
@@ -39,7 +38,7 @@ public class TcpNode extends Node {
             super();
             this.serverSocket = serverSocket;
             this.localPort = localPort;
-            this.inQueue = inQueue; //Kommer detta fungera?? Kommer detta bli en ny likadan kö eller kommer den att peka till den "riktiga" inQueue...Finns det något bättre sätt
+            this.inQueue = inQueue;
         }
         @Override
         public void run() {
@@ -47,31 +46,23 @@ public class TcpNode extends Node {
             while (true) {
                 /*Try creating a connection to a client sending a request to the port that serverSocket is listening to.*/
                 try {
-                    System.out.println("Calling accept on serverSocket aka accepting requests made to localPort: " + localPort);
                     inSocket = serverSocket.accept();
                     System.out.println("Created connection to inSocket!");
                     break;
                 } catch (IOException e) {
-                    //TODO write an actual error message and decide what action to take..
-                    System.err.println("Exception when accepting....");
+                    System.err.println("Oopsy daisy something went wrong in accept()... trying again!");
                 }
             }
-            InputStream inputStream;
             while (true) {
                 try {
                     byte[] byteMessage = new byte[100];
-                    inputStream = inSocket.getInputStream();
+                    InputStream inputStream = inSocket.getInputStream();
                     //TODO maybe make a final int for the length of the byte array
-                    int amountOfBytesInByteMessage = inputStream.read(byteMessage, 0, 100);
-                    for (int i=0; i<100; i++) {
-                        System.out.print(byteMessage[i]);
-                    }
+                    inputStream.read(byteMessage, 0, 100);
                     //TODO FRÅGA: Does this^ reading of the byte[] work or will there be a problem if many messages are sent at the same time? (Do i need to use a queue in some way?)
-                    //TODO Validate the incomming message (how do i do that before translating it?)
-                    //TODO Translate the message to String
+                    //TODO Validate the incoming message
                     String message = new String(byteMessage);
                     inQueue.put(message);
-                    System.out.println("Message is placed in inQueue");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -107,30 +98,28 @@ public class TcpNode extends Node {
             }
             //When the connection is made the while loop will break and we will start doing the following:
             MessageProtocol protocol = new MessageProtocol(nextHostIP + "," + nextPort);
+            try {
+                inQueue.put("ELECTION");
+            } catch (InterruptedException e) {
+                //TODO make a better catch or put try catch in while
+                e.printStackTrace();
+                return;
+            }
+            String receivedMessage;
+            String messageToSend;
             while (true) {
-                String recievedMessage = "ELECTION";
-                String messageToSend;
                 try {
-                    inQueue.put("ELECTION");
+                    receivedMessage = inQueue.take();
                 } catch (InterruptedException e) {
+                    //TODO make a really good catch here or put in while??
                     e.printStackTrace();
+                    return;
                 }
-                try {
-                    recievedMessage = inQueue.take();
-                } catch (InterruptedException e) {
-                    //TODO make a really good catch here
-                    e.printStackTrace();
-                }
-                messageToSend = protocol.processInput(recievedMessage);
-                byte[] byteMessage = new byte[100];
-                byteMessage = messageToSend.getBytes();
+                messageToSend = protocol.processInput(receivedMessage);
+                byte[] byteMessage = messageToSend.getBytes();
                 try {
                     OutputStream outputStream = outSocket.getOutputStream();
                     outputStream.write(byteMessage);
-//                    Scanner s = new Scanner(System.in);
-//                    while (s.hasNextLine()) {
-//                        outputStream.write(s.next().getBytes());
-//                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

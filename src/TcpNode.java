@@ -27,7 +27,7 @@ public class TcpNode extends Node {
 
         /*Create the outSocket*/
         //TODO FRÅGA är det så här man ska skriva? jag la det i en egen tråd för att man ska kunna göra både outSocket kopplingen och inSocket kopplingen samtidigt...
-        new ClientThread(nextHostIP, nextPort).start();
+        new ClientThread(nextHostIP, nextPort, inQueue).start();
         new ServerThread(serverSocket, localPort, inQueue).start();
     }
     class ServerThread extends Thread {
@@ -66,13 +66,12 @@ public class TcpNode extends Node {
                     for (int i=0; i<100; i++) {
                         System.out.print(byteMessage[i]);
                     }
-                    //TODO FRÅGA: Does this^ reading of the byte[] work or will there be a problem if many messages are sent at the same time?
-                    /*Incoming messages will be byte arrays,
-                     *and should be in the format that the Message Protocol specifies*/
+                    //TODO FRÅGA: Does this^ reading of the byte[] work or will there be a problem if many messages are sent at the same time? (Do i need to use a queue in some way?)
                     //TODO Validate the incomming message (how do i do that before translating it?)
                     //TODO Translate the message to String
                     String message = new String(byteMessage);
                     inQueue.put(message);
+                    System.out.println("Message is placed in inQueue");
                 } catch (IOException e) {
                     e.printStackTrace();
                 } catch (InterruptedException e) {
@@ -85,11 +84,12 @@ public class TcpNode extends Node {
         Socket outSocket;
         InetAddress nextHostIP;
         int nextPort;
-
-        public ClientThread(InetAddress nextHostIP, int nextPort) {
+        BlockingQueue<String> inQueue;
+        public ClientThread(InetAddress nextHostIP, int nextPort, BlockingQueue inQueue) {
             super();
             this.nextHostIP = nextHostIP;
             this.nextPort = nextPort;
+            this.inQueue = inQueue;
         }
         @Override
         public void run() {
@@ -106,20 +106,25 @@ public class TcpNode extends Node {
                 }
             }
             //When the connection is made the while loop will break and we will start doing the following:
-            //TODO Use protocol to decide what to do based on the message, and what state we are in.
-            //TODO Translate message to bytes
-            //TODO Send the message to the next node
-            byte[] arr = new byte[100];
-            for (int i=0; i<10; i++) {
-                arr[i] = 104;
-            }
             while (true) {
+                String messageToSend = "h";
+                //TODO Use protocol to decide what to do based on the message, and what state we are in.
+                //TODO Translate message to bytes
+                //TODO Send the message to the next node
                 try {
                     OutputStream outputStream = outSocket.getOutputStream();
-                    outputStream.write(arr);
-                    Scanner s = new Scanner(System.in);
-                    while (s.hasNextLine()) {
-                        outputStream.write(s.next().getBytes());
+                    outputStream.write(messageToSend.getBytes());
+//                    Scanner s = new Scanner(System.in);
+//                    while (s.hasNextLine()) {
+//                        outputStream.write(s.next().getBytes());
+//                    }
+
+                    try {
+                        System.out.println("Taking messages from inQueue");
+                        messageToSend = inQueue.take();
+                        System.out.println("There was a message in inQueue message is: " + messageToSend);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 } catch (IOException e) {
                     e.printStackTrace();

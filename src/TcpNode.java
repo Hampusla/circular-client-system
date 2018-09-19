@@ -106,26 +106,31 @@ public class TcpNode extends Node {
                 }
             }
             //When the connection is made the while loop will break and we will start doing the following:
+            MessageProtocol protocol = new MessageProtocol(nextHostIP + "," + nextPort);
             while (true) {
-                String messageToSend = "h";
-                //TODO Use protocol to decide what to do based on the message, and what state we are in.
-                //TODO Translate message to bytes
-                //TODO Send the message to the next node
+                String recievedMessage = "ELECTION";
+                String messageToSend;
+                try {
+                    inQueue.put("ELECTION");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                try {
+                    recievedMessage = inQueue.take();
+                } catch (InterruptedException e) {
+                    //TODO make a really good catch here
+                    e.printStackTrace();
+                }
+                messageToSend = protocol.processInput(recievedMessage);
+                byte[] byteMessage = new byte[100];
+                byteMessage = messageToSend.getBytes();
                 try {
                     OutputStream outputStream = outSocket.getOutputStream();
-                    outputStream.write(messageToSend.getBytes());
+                    outputStream.write(byteMessage);
 //                    Scanner s = new Scanner(System.in);
 //                    while (s.hasNextLine()) {
 //                        outputStream.write(s.next().getBytes());
 //                    }
-
-                    try {
-                        System.out.println("Taking messages from inQueue");
-                        messageToSend = inQueue.take();
-                        System.out.println("There was a message in inQueue message is: " + messageToSend);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -4,64 +4,56 @@ import java.net.*;
 /**
  *
  */
-public class UdpNode extends Node {
+public class UdpNode {
 
     public static void main(String argc[])
          throws UnknownHostException, InterruptedException{
 
-        UdpNode butWhyyy = new UdpNode();
-
-        //TODO Create port and host for self
+        //Create port and host for self
         int port = Integer.parseInt(argc[0]);
         InetAddress Host = InetAddress.getLocalHost();
 
-        //TODO Create port and  ip for receiver
+        //Create port and  ip for receiver
         InetAddress nextHost = InetAddress.getByName(argc[1]);
         int nextPort = Integer.parseInt(argc[2]);
 
-        //TODO Create MessageProtocol
+        //Create MessageProtocol
         String socketID = Host + "," + port;
         MessageProtocol messageProtocol = new MessageProtocol(socketID);
 
-        //TODO Create Datagram Socket
+        //Create Datagram Socket
         DatagramSocket datagramSocket;
         try {
             datagramSocket = new DatagramSocket(port);
+            datagramSocket.setSoTimeout(1000);
         } catch (SocketException e) {
-            System.out.println("Could not bind to port!");
+            System.out.println("Could not bind to port or set timeout!");
+            e.printStackTrace();
             return;
         }
 
-        //TODO Create Datagram Packets to be used.
-
+        //Create Datagram Packets to be used.
         DatagramPacket rcdp = new DatagramPacket(new byte[100], 100);
         DatagramPacket sndp;
-
-
-        //TODO Create loop for setup
-        /**
-         *  *Try to send
-         *  *Timeout 1 sec
-         *  *Check if received anything.
-         */
-
-        // Send first time
-        String startMessage = messageProtocol.processInput("NEW_MODE");
-        byte[] startBytes = butWhyyy.serialization(startMessage);
-        sndp = new DatagramPacket(
-            startBytes, startBytes.length, nextHost, nextPort);
 
         try {
             datagramSocket.send(sndp);
         } catch (IOException e) {
-            System.out.println("Ooops IOException when sending");
+            e.printStackTrace();
+            return;
         }
 
         // Continue to send first message until a packet is received
-        while (rcdp.getData() == null) {
+        String startMessage;
+        byte[] startBytes;
+        boolean waitDone = false;
+
+        while (!waitDone) {
+
+            waitDone = true;
 
             startMessage = messageProtocol.processInput("RESEND_FIRST");
-            startBytes = butWhyyy.serialization(startMessage);
+            startBytes = startMessage.getBytes();
 
             sndp = new DatagramPacket(
                 startBytes, startBytes.length, nextHost, nextPort);
@@ -69,49 +61,58 @@ public class UdpNode extends Node {
             try {
                 datagramSocket.send(sndp);
             } catch (IOException e) {
-                System.out.println("Ooops IOException when sending");
+                e.printStackTrace();
+                return;
             }
 
-            Thread.sleep(1000);
-        }
-
-        //TODO Create receive and send loop
-        while (true) {
-
-
-            //Receive packet
             try {
                 datagramSocket.receive(rcdp);
+            } catch (SocketTimeoutException e) {
+                waitDone = false;
             } catch (IOException e) {
-                System.out.println("Ooops IOException");
+                e.printStackTrace();
+                return;
             }
 
+        }
 
-            //deserialize
-            String input = butWhyyy.deserialization(rcdp.getData());
+        try {
+            datagramSocket.setSoTimeout(0);
+        } catch (SocketException e) {
+            System.out.println("Socket not working");
+            e.printStackTrace();
+            return;
+        }
 
-            //Check what to do
+        //Receive and send loop
+        while (true) {
+
+            //Create new message depending on input
+            String input = new String(rcdp.getData());
             String output = messageProtocol.processInput(input);
+            byte[] outData = output.getBytes();
 
-            //serialize
-            byte[] outData = butWhyyy.serialization(output);
-
-            // pack Data
+            //Pack data and send it to next node
             sndp = new DatagramPacket(
                 outData, outData.length, nextHost, nextPort);
 
-            //send
             try {
                 datagramSocket.send(sndp);
             } catch (IOException e) {
-                System.out.println("Ooops IOException");
+                e.printStackTrace();
+                return;
             }
 
 
-            //Create packet to receive in
+            //Create packet to receive in and then wait to receive new message
             rcdp = new DatagramPacket(new byte[100], 100);
-        }
 
-        //TODO
+            try {
+                datagramSocket.receive(rcdp);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return;
+            }
+        }
     }
 }

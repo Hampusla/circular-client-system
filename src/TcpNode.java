@@ -127,32 +127,32 @@ public class TcpNode {
                     //e.printStackTrace();
                 }
             }
-            //When the connection is made the while loop will break and we will start doing the following:
             MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + nextPort);
-            try {
-                messageQueue.put("ELECTION");
-            } catch (InterruptedException e) {
-                //TODO make a better catch or put try catch in while
-                e.printStackTrace();
-                return;
-            }
             String receivedMessage;
             String messageToSend;
+            boolean firstMessage = true;
             while (true) {
-                try {
-                    receivedMessage = messageQueue.take();
-                } catch (InterruptedException e) {
-                    //TODO make a really good catch here or put in while??
-                    e.printStackTrace();
-                    return;
+                if (!firstMessage) {
+                    try {
+                        receivedMessage = messageQueue.take();
+                    } catch (InterruptedException e) {
+                        //TODO make a really good catch here or put in while??
+                        e.printStackTrace();
+                        return;
+                    }
+                    messageToSend = protocol.processInput(receivedMessage);
+                }else {
+                    messageToSend = protocol.processInput("VADSKADETFÖRSTAMEDDELANDETTILLPROTOCOLVARAFÖRATTDETSKABLIRÄTT???");
+                    firstMessage = false;
                 }
-                messageToSend = protocol.processInput(receivedMessage);
-                byte[] byteMessage = messageToSend.getBytes();
-                try {
-                    OutputStream outputStream = outSocket.getOutputStream();
-                    outputStream.write(byteMessage);
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if (messageToSend != null ) {
+                    byte[] byteMessage = messageToSend.getBytes();
+                    try {
+                        OutputStream outputStream = outSocket.getOutputStream();
+                        outputStream.write(byteMessage);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }

@@ -148,7 +148,7 @@ public class TcpNode {
                 }else {
 
                     try {
-                        messageToSend = protocol.processInput("VADSKADETFÖRSTAMEDDELANDETTILLPROTOCOLVARAFÖRATTDETSKABLIRÄTT???");
+                        messageToSend = protocol.processInput("NEW_NODE");
                     } catch (IllegalArgumentException e) {
                         System.out.println("Message given was not following format");
                         e.printStackTrace();

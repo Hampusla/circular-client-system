@@ -36,13 +36,6 @@ public class UdpNode {
         DatagramPacket rcdp = new DatagramPacket(new byte[100], 100);
         DatagramPacket sndp;
 
-        try {
-            datagramSocket.send(sndp);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return;
-        }
-
         // Continue to send first message until a packet is received
         String startMessage;
         byte[] startBytes;

@@ -30,6 +30,7 @@ public class UdpNode {
             return;
         }
 
+        System.out.println("Socket made");
         //Create Datagram Packets to be used.
         DatagramPacket rcdp = new DatagramPacket(new byte[100], 100);
         DatagramPacket sndp;
@@ -41,6 +42,7 @@ public class UdpNode {
 
         while (!waitDone) {
 
+            System.out.println("Sending First message");
             waitDone = true;
 
             startMessage = messageProtocol.processInput("RESEND_FIRST");
@@ -82,6 +84,9 @@ public class UdpNode {
             String input = new String(rcdp.getData());
             String output;
 
+            System.out.println("Got a new message: " + input + " putting it in messageQueue");
+
+
             try {
                 output = messageProtocol.processInput(input);
             } catch (IllegalArgumentException e) {
@@ -91,6 +96,8 @@ public class UdpNode {
             }
 
             if (output != null) {
+
+                System.out.println("Sending message: " + output + "To next node");
 
                 byte[] outData = output.getBytes();
 

@@ -8,49 +8,35 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class TcpNode {
+
     public static void main(String argc[]) {
-        /*Argument should be in the following format:
-         *Java: java {TcpNode,UdpNode} local-port next-host next-port*/
-        /*Check that the number of arguments are correct.*/
+        //Validate the number of arguments
         if (argc.length != 3) {
             System.err.println("Invalid number of arguments! Input should be on the following format: " +
                     "local-port next-host next-port");
             return;
         }
-        /*Save the first argument as localPort.
-         *If the argument is not in the correct format print error message and return*/
-        int localPort;
+        //Validate (arg[0], arg[2]) and save as ports
+        int localPort, nextPort;
         try {
             localPort = Integer.parseInt(argc[0]);
-        } catch (NumberFormatException e) {
-            System.err.println("Argument " + argc[0] + " is not an integer!");
-            return;
-        }
-        /*Save the third argument as nextPort.
-         *If the argument is not in the correct format print error message and return*/
-        int nextPort;
-        try {
             nextPort = Integer.parseInt(argc[2]);
         } catch (NumberFormatException e) {
-            System.err.println("Argument " + argc[2] + " is not an integer!");
+            System.err.println("Argument 1 and 3 must be integers!");
             return;
         }
-        /*Create an InetAdress "ipAddress" using the second argument,
-         *Then create an InetSocketAddress using the InetAddress,
-         *If the InetSocketAdress can not be created print error message and return*/
+        //Create InetAdress using arg[1]
         InetAddress nextHostIP;
         try {
             nextHostIP = InetAddress.getByName(argc[1]);
         } catch (UnknownHostException e) {
             System.err.println("Error when creating a InetAdress from argc[1]! Exiting...");
-            e.printStackTrace();
             return;
         }
-        System.out.println("All arguments validated.");
         new TcpNode(localPort, nextHostIP, nextPort);
     }
+
     private TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
-        //TODO Decide if this is a good class for the queue and what capacity is neccessary.
         BlockingQueue messageQueue = new ArrayBlockingQueue<String>(10);
         ServerSocket serverSocket;
         try {
@@ -64,19 +50,20 @@ public class TcpNode {
         System.out.println("Listening to serverSocket for requests on port " + localPort);
 
         /*Create the outSocket*/
-        new ClientThread(nextHostIP, nextPort, messageQueue).start();
-        new ServerThread(serverSocket, localPort, messageQueue).start();
+        new outputThread(nextHostIP, nextPort, messageQueue).start();
+        new inputThread(serverSocket, localPort, messageQueue).start();
     }
-    class ServerThread extends Thread {
+
+    class inputThread extends Thread {
         ServerSocket serverSocket;
         int localPort;
         Socket inSocket;
-        BlockingQueue inQueue;
-        ServerThread(ServerSocket serverSocket, int localPort, BlockingQueue inQueue) {
+        BlockingQueue messageQueue;
+        inputThread(ServerSocket serverSocket, int localPort, BlockingQueue messageQueue) {
             super();
             this.serverSocket = serverSocket;
             this.localPort = localPort;
-            this.inQueue = inQueue;
+            this.messageQueue = messageQueue;
         }
         @Override
         public void run() {
@@ -88,37 +75,43 @@ public class TcpNode {
                     System.out.println("Created connection to inSocket!");
                     break;
                 } catch (IOException e) {
-                    System.err.println("Oopsy daisy something went wrong in accept()... trying again!");
+                    System.err.println("Oopsie daisy something went wrong in accept()... trying again!");
                 }
+            }
+            byte[] byteMessage = new byte[100];
+            InputStream inputStream = null;
+            try {
+                inputStream = inSocket.getInputStream();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             while (true) {
                 try {
-                    byte[] byteMessage = new byte[100];
-                    InputStream inputStream = inSocket.getInputStream();
                     //TODO Use lengthOfByteMessage int for verification?
+                    //Read what is in the inputStream and store as a byte[]
                     int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
                     //TODO Validate the incoming message
+                    //Translate the byte[] to a String message and put it in the messageQueue
                     String message = new String(byteMessage);
-                    inQueue.put(message);
-                } catch (IOException e) {
-                    //TODO should we do something more in these catches?
-                    e.printStackTrace();
-                } catch (InterruptedException e) {
+                    //TODO If Queue is full put() will wait until there is room for the message... Can create packet loss
+                    messageQueue.put(message);
+                } catch (InterruptedException | IOException e) {
+                    System.err.println("Oh no! Something went wrong when getting message from inSocket");
                     e.printStackTrace();
                 }
             }
         }
     }
-    class ClientThread extends Thread {
+    class outputThread extends Thread {
         Socket outSocket;
         InetAddress nextHostIP;
         int nextPort;
-        BlockingQueue<String> inQueue;
-        ClientThread(InetAddress nextHostIP, int nextPort, BlockingQueue inQueue) {
+        BlockingQueue<String> messageQueue;
+        outputThread(InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
             super();
             this.nextHostIP = nextHostIP;
             this.nextPort = nextPort;
-            this.inQueue = inQueue;
+            this.messageQueue = messageQueue;
         }
         @Override
         public void run() {
@@ -137,7 +130,7 @@ public class TcpNode {
             //When the connection is made the while loop will break and we will start doing the following:
             MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + nextPort);
             try {
-                inQueue.put("ELECTION");
+                messageQueue.put("ELECTION");
             } catch (InterruptedException e) {
                 //TODO make a better catch or put try catch in while
                 e.printStackTrace();
@@ -147,7 +140,7 @@ public class TcpNode {
             String messageToSend;
             while (true) {
                 try {
-                    receivedMessage = inQueue.take();
+                    receivedMessage = messageQueue.take();
                 } catch (InterruptedException e) {
                     //TODO make a really good catch here or put in while??
                     e.printStackTrace();

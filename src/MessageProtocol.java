@@ -25,7 +25,9 @@ public class MessageProtocol {
 
     public String processInput(String input) {
 
-        String output = "Bullshite";
+        String output = "";
+
+        //TODO Create Validation
 
         String[] messageParts = input.split("\n");
 

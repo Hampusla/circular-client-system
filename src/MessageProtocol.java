@@ -34,6 +34,8 @@ public class MessageProtocol {
             messageParts = new String[3];
             messageParts[0] = firstPart;
             messageParts[1] = "";
+            int lengt = messageParts[0].length();
+            messageParts[2] = new String(new byte[100 - lengt]);
         }
 
         if (!validation(messageParts)) {

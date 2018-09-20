@@ -91,7 +91,9 @@ public class MessageProtocol {
             }else {
                 state = MESSAGE;
             }
-        }if(state.equals(MESSAGE) && leader) {
+        }if(state.equals(MESSAGE) &&
+            leader &&
+            messageParts[0].equals("MESSAGE")) {
             /**
              * If state is MESSAGE
              *
@@ -105,13 +107,20 @@ public class MessageProtocol {
              *      *send same message
              *
              */
+
             roundCounter++;
             if((roundCounter % 1000) == 0) {
                 long time = System.currentTimeMillis() - starttime;
                 System.out.println("Time per round " + time/100000);
                 starttime = System.currentTimeMillis();
+
             }
+        }else if (state.equals(MESSAGE) && !messageParts[0].equals("MESSAGE")) {
+
+            return null;
         }
+
+
 
         /**
          * Add together messagePart 1 and 2

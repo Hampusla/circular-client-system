@@ -35,7 +35,7 @@ public class MessageProtocol {
             messageParts[0] = firstPart;
             messageParts[1] = "";
             int lengt = messageParts[0].length();
-            messageParts[2] = new String(new byte[100 - lengt]);
+            messageParts[2] = new String(new byte[98 - lengt]);
         }
 
         if (!validation(messageParts)) {
@@ -44,6 +44,10 @@ public class MessageProtocol {
 
         if (messageParts[0].equals("RESEND_FIRST")) {
             state = NEW_NODE;
+        }
+
+        if (state.equals(MESSAGE) && !messageParts[0].equals("MESSAGE")) {
+            return null;
         }
 
         if (state.equals(NEW_NODE)) {
@@ -120,9 +124,6 @@ public class MessageProtocol {
                 starttime = System.currentTimeMillis();
 
             }
-        }else if (state.equals(MESSAGE) && !messageParts[0].equals("MESSAGE")) {
-
-            return null;
         }
 
 
@@ -161,11 +162,7 @@ public class MessageProtocol {
             return false;
         }
 
-        if (validTypes.contains(messageParts[0])) {
-            return false;
-        }
-
-        return true;
+        return validTypes.contains(messageParts[0]);
     }
 
 }

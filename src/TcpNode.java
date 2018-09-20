@@ -7,7 +7,7 @@ import java.net.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class TcpNode extends Node {
+public class TcpNode {
     public static void main(String argc[]) {
         /*Argument should be in the following format:
          *Java: java {TcpNode,UdpNode} local-port next-host next-port*/

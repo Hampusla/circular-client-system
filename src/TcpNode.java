@@ -33,7 +33,7 @@ public class TcpNode {
             System.err.println("Error when creating a InetAdress from argc[1]! Exiting...");
             return;
         }
-        System.out.println("Arguments validated creating Node");
+        System.out.println("Arguments validated. Creating Node");
         new TcpNode(localPort, nextHostIP, nextPort);
     }
 
@@ -50,7 +50,7 @@ public class TcpNode {
         //TODO not really a todo but should i change the names of inSocket and outSocket to something more descriptive?
         System.out.println("Listening to serverSocket for requests on port " + localPort);
         /*Create the outSocket*/
-        new outputThread(nextHostIP, nextPort, messageQueue).start();
+        new outputThread(localPort, nextHostIP, nextPort, messageQueue).start();
         new inputThread(serverSocket, localPort, messageQueue).start();
     }
 
@@ -110,12 +110,14 @@ public class TcpNode {
         Socket outSocket;
         InetAddress nextHostIP;
         int nextPort;
+        int localport;
         BlockingQueue<String> messageQueue;
-        outputThread(InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
+        outputThread(int localport, InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
             super();
             this.nextHostIP = nextHostIP;
             this.nextPort = nextPort;
             this.messageQueue = messageQueue;
+            this.localport = localport;
         }
         @Override
         public void run() {
@@ -131,7 +133,7 @@ public class TcpNode {
                     //e.printStackTrace();
                 }
             }
-            MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + nextPort);
+            MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + localport);
             String receivedMessage;
             String messageToSend;
             boolean firstMessage = true;

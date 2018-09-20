@@ -4,14 +4,12 @@ import java.net.*;
 /**
  *
  */
-public class UdpNode extends Node {
+public class UdpNode {
 
     public static void main(String argc[])
          throws UnknownHostException, InterruptedException{
 
-        UdpNode butWhyyy = new UdpNode();
-
-        //TODO Create port and host for self
+        //Create port and host for self
         int port = Integer.parseInt(argc[0]);
         InetAddress Host = InetAddress.getLocalHost();
 
@@ -47,7 +45,7 @@ public class UdpNode extends Node {
 
         // Send first time
         String startMessage = messageProtocol.processInput("NEW_MODE");
-        byte[] startBytes = butWhyyy.serialization(startMessage);
+        byte[] startBytes = startMessage.getBytes();
         sndp = new DatagramPacket(
             startBytes, startBytes.length, nextHost, nextPort);
 
@@ -61,7 +59,7 @@ public class UdpNode extends Node {
         while (rcdp.getData() == null) {
 
             startMessage = messageProtocol.processInput("RESEND_FIRST");
-            startBytes = butWhyyy.serialization(startMessage);
+            startBytes = startMessage.getBytes();
 
             sndp = new DatagramPacket(
                 startBytes, startBytes.length, nextHost, nextPort);
@@ -88,13 +86,13 @@ public class UdpNode extends Node {
 
 
             //deserialize
-            String input = butWhyyy.deserialization(rcdp.getData());
+            String input = new String(rcdp.getData());
 
             //Check what to do
             String output = messageProtocol.processInput(input);
 
             //serialize
-            byte[] outData = butWhyyy.serialization(output);
+            byte[] outData = output.getBytes();
 
             // pack Data
             sndp = new DatagramPacket(

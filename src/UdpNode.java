@@ -1,9 +1,7 @@
 import java.io.IOException;
 import java.net.*;
 
-/**
- *
- */
+
 public class UdpNode {
 
     public static void main(String argc[])
@@ -92,17 +90,20 @@ public class UdpNode {
                 return;
             }
 
-            byte[] outData = output.getBytes();
+            if (output != null) {
 
-            //Pack data and send it to next node
-            sndp = new DatagramPacket(
-                outData, outData.length, nextHost, nextPort);
+                byte[] outData = output.getBytes();
 
-            try {
-                datagramSocket.send(sndp);
-            } catch (IOException e) {
-                e.printStackTrace();
-                return;
+                //Pack data and send it to next node
+                sndp = new DatagramPacket(
+                        outData, outData.length, nextHost, nextPort);
+
+                try {
+                    datagramSocket.send(sndp);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    return;
+                }
             }
 
 

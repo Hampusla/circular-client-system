@@ -156,7 +156,7 @@ public class MessageProtocol {
             return false;
         }
 
-        int length = messageParts[0].length() + messageParts[1].length() + messageParts[2].length();
+        int length = messageParts[0].length() + messageParts[1].length() + messageParts[2].length() + 2;
         if (length != 100) {
             return false;
         }

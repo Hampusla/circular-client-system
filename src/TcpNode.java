@@ -135,14 +135,25 @@ public class TcpNode {
                 if (!firstMessage) {
                     try {
                         receivedMessage = messageQueue.take();
+                        messageToSend = protocol.processInput(receivedMessage);
                     } catch (InterruptedException e) {
                         //TODO make a really good catch here or put in while??
                         e.printStackTrace();
                         return;
+                    }catch (IllegalArgumentException e) {
+                        System.out.println("Message given was not following format");
+                        e.printStackTrace();
+                        return;
                     }
-                    messageToSend = protocol.processInput(receivedMessage);
                 }else {
-                    messageToSend = protocol.processInput("VADSKADETFÖRSTAMEDDELANDETTILLPROTOCOLVARAFÖRATTDETSKABLIRÄTT???");
+
+                    try {
+                        messageToSend = protocol.processInput("VADSKADETFÖRSTAMEDDELANDETTILLPROTOCOLVARAFÖRATTDETSKABLIRÄTT???");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Message given was not following format");
+                        e.printStackTrace();
+                        return;
+                    }
                     firstMessage = false;
                 }
                 if (messageToSend != null ) {

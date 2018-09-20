@@ -82,7 +82,16 @@ public class UdpNode {
 
             //Create new message depending on input
             String input = new String(rcdp.getData());
-            String output = messageProtocol.processInput(input);
+            String output;
+
+            try {
+                output = messageProtocol.processInput(input);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Message given was not following format");
+                e.printStackTrace();
+                return;
+            }
+
             byte[] outData = output.getBytes();
 
             //Pack data and send it to next node

@@ -1,6 +1,6 @@
-import java.lang.reflect.Array;
-import java.net.InetAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
+
 
 public class MessageProtocol {
 
@@ -27,16 +27,17 @@ public class MessageProtocol {
 
         String output = "";
 
-        //TODO Create Validation
-
         String[] messageParts = input.split("\n");
-
 
         if (messageParts.length == 1) {
             String firstPart = messageParts[0];
             messageParts = new String[3];
             messageParts[0] = firstPart;
             messageParts[1] = "";
+        }
+
+        if (!validation(messageParts)) {
+            throw new IllegalArgumentException();
         }
 
         if (messageParts[0].equals("RESEND_FIRST")) {
@@ -137,6 +138,32 @@ public class MessageProtocol {
         output = output.concat(new String(filler));
 
         return output;
+    }
+
+    boolean validation(String[] messageParts) {
+
+        ArrayList<String> validTypes = new ArrayList<>();
+        validTypes.add("NEW_NODE");
+        validTypes.add("RESEND_FIRST");
+        validTypes.add("ELECTION");
+        validTypes.add("ELECTION_OVER");
+        validTypes.add("MESSAGE");
+
+        int numberOfRows = messageParts.length;
+        if (numberOfRows != 3) {
+            return false;
+        }
+
+        int length = messageParts[0].length() + messageParts[1].length() + messageParts[2].length();
+        if (length != 100) {
+            return false;
+        }
+
+        if (validTypes.contains(messageParts[0])) {
+            return false;
+        }
+
+        return true;
     }
 
 }

@@ -8,7 +8,47 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 public class TcpNode extends Node {
-
+    public static void main(String argc[]) {
+        /*Argument should be in the following format:
+         *Java: java {TcpNode,UdpNode} local-port next-host next-port*/
+        /*Check that the number of arguments are correct.*/
+        if (argc.length != 3) {
+            System.err.println("Invalid number of arguments! Input should be on the following format: " +
+                    "local-port next-host next-port");
+            return;
+        }
+        /*Save the first argument as localPort.
+         *If the argument is not in the correct format print error message and return*/
+        int localPort;
+        try {
+            localPort = Integer.parseInt(argc[0]);
+        } catch (NumberFormatException e) {
+            System.err.println("Argument " + argc[0] + " is not an integer!");
+            return;
+        }
+        /*Save the third argument as nextPort.
+         *If the argument is not in the correct format print error message and return*/
+        int nextPort;
+        try {
+            nextPort = Integer.parseInt(argc[2]);
+        } catch (NumberFormatException e) {
+            System.err.println("Argument " + argc[2] + " is not an integer!");
+            return;
+        }
+        /*Create an InetAdress "ipAddress" using the second argument,
+         *Then create an InetSocketAddress using the InetAddress,
+         *If the InetSocketAdress can not be created print error message and return*/
+        InetAddress nextHostIP;
+        try {
+            nextHostIP = InetAddress.getByName(argc[1]);
+        } catch (UnknownHostException e) {
+            System.err.println("Error when creating a InetAdress from argc[1]! Exiting...");
+            e.printStackTrace();
+            return;
+        }
+        System.out.println("All arguments validated.");
+        new TcpNode(localPort, nextHostIP, nextPort);
+    }
     private TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
         //TODO Decide if this is a good class for the queue and what capacity is neccessary.
         BlockingQueue messageQueue = new ArrayBlockingQueue<String>(10);
@@ -55,10 +95,8 @@ public class TcpNode extends Node {
                 try {
                     byte[] byteMessage = new byte[100];
                     InputStream inputStream = inSocket.getInputStream();
-                    //TODO maybe make a final int for the length of the byte array
                     //TODO Use lengthOfByteMessage int for verification?
                     int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
-                    //TODO FRÅGA: Does this^ reading of the byte[] work or will there be a problem if many messages are sent at the same time? (Do i need to use a queue in some way?)
                     //TODO Validate the incoming message
                     String message = new String(byteMessage);
                     inQueue.put(message);
@@ -97,7 +135,7 @@ public class TcpNode extends Node {
                 }
             }
             //When the connection is made the while loop will break and we will start doing the following:
-            MessageProtocol protocol = new MessageProtocol(nextHostIP + "," + nextPort);
+            MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + nextPort);
             try {
                 inQueue.put("ELECTION");
             } catch (InterruptedException e) {
@@ -125,45 +163,5 @@ public class TcpNode extends Node {
                 }
             }
         }
-    }
-    public static void main(String argc[]) {
-        /*Argument should be in the following format:
-         *Java: java {TcpNode,UdpNode} local-port next-host next-port*/
-        int localPort, nextPort;
-        /*Check that the number of arguments are correct.*/
-        if (argc.length != 3) {
-            System.err.println("Invalid number of arguments! Input should be on the following format: " +
-                    "local-port next-host next-port");
-            return;
-        }
-        /*Save the first argument as localPort.
-         *If the argument is not in the correct format print error message and return*/
-        try {
-            localPort = Integer.parseInt(argc[0]);
-        } catch (NumberFormatException e) {
-            System.err.println("Argument " + argc[0] + " must be an integer!");
-            return;
-        }
-        /*Save the third argument as nextPort.
-         *If the argument is not in the correct format print error message and return*/
-        try {
-            nextPort = Integer.parseInt(argc[2]);
-        } catch (NumberFormatException e) {
-            System.err.println("Argument " + argc[2] + " must be an integer!");
-            return;
-        }
-        /*Create an InetAdress "ipAddress" using the second argument,
-         *Then create an InetSocketAddress using the InetAddress,
-         *If the InetSocketAdress can not be created print error message and return*/
-        InetAddress nextHostIP;
-        try {
-            nextHostIP = InetAddress.getByName(argc[1]);
-        } catch (UnknownHostException e) {
-            System.err.println("Error when creating a InetAdress from argc[1]! Exiting...");
-            e.printStackTrace();
-            return;
-        }
-        System.out.println("All arguments validated.");
-        new TcpNode(localPort, nextHostIP, nextPort);
     }
 }

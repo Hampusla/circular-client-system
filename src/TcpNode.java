@@ -33,6 +33,7 @@ public class TcpNode {
             System.err.println("Error when creating a InetAdress from argc[1]! Exiting...");
             return;
         }
+        System.out.println("Arguments validated creating Node");
         new TcpNode(localPort, nextHostIP, nextPort);
     }
 
@@ -48,7 +49,6 @@ public class TcpNode {
         }
         //TODO not really a todo but should i change the names of inSocket and outSocket to something more descriptive?
         System.out.println("Listening to serverSocket for requests on port " + localPort);
-
         /*Create the outSocket*/
         new outputThread(nextHostIP, nextPort, messageQueue).start();
         new inputThread(serverSocket, localPort, messageQueue).start();
@@ -78,12 +78,15 @@ public class TcpNode {
                     System.err.println("Oopsie daisy something went wrong in accept()... trying again!");
                 }
             }
+            System.out.println("Connection via inSocket established!");
             byte[] byteMessage = new byte[100];
-            InputStream inputStream = null;
+            InputStream inputStream;
             try {
                 inputStream = inSocket.getInputStream();
             } catch (IOException e) {
+                System.err.println("Fail when making getting inputStream");
                 e.printStackTrace();
+                return;
             }
             while (true) {
                 try {
@@ -93,6 +96,7 @@ public class TcpNode {
                     //TODO Validate the incoming message
                     //Translate the byte[] to a String message and put it in the messageQueue
                     String message = new String(byteMessage);
+                    System.out.println("Got a new message: " + message + " putting it in messageQueue");
                     //TODO If Queue is full put() will wait until there is room for the message... Can create packet loss
                     messageQueue.put(message);
                 } catch (InterruptedException | IOException e) {
@@ -157,6 +161,7 @@ public class TcpNode {
                     firstMessage = false;
                 }
                 if (messageToSend != null ) {
+                    System.out.println("Sending message: " + messageToSend + "To next node");
                     byte[] byteMessage = messageToSend.getBytes();
                     try {
                         OutputStream outputStream = outSocket.getOutputStream();

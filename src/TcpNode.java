@@ -127,6 +127,9 @@ public class TcpNode {
                     break;
                 } catch (IOException e) {
                     System.out.println("Creating outSocket failed");
+                    try{ Thread.sleep(1000); } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     //e.printStackTrace();
                 }
             }

@@ -13,7 +13,7 @@ public class MessageProtocol {
     private Integer state = 0;
     private String socketID;
     private boolean leader = false;
-    private long starttime = 0;
+    private long startTime = 0;
     private int roundCounter = 0;
 
     public MessageProtocol(String socketID) {
@@ -105,7 +105,7 @@ public class MessageProtocol {
                 leader = true;
                 messageParts[0] = "MESSAGE";
                 messageParts[1] = "This is a message";
-                starttime = System.currentTimeMillis();
+                startTime = System.currentTimeMillis();
             }else {
                 state = MESSAGE;
             }
@@ -126,9 +126,9 @@ public class MessageProtocol {
 
             roundCounter++;
             if((roundCounter % 1000) == 0) {
-                long time = System.currentTimeMillis() - starttime;
+                long time = System.currentTimeMillis() - startTime;
                 System.out.println("Time per round " + time/1000);
-                starttime = System.currentTimeMillis();
+                startTime = System.currentTimeMillis();
 
             }
         }

@@ -4,14 +4,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
-class inputThread extends Thread {
+class InputThread extends Thread {
 
     private ServerSocket serverSocket;
     private int localPort;
     private Socket inSocket;
     private BlockingQueue messageQueue;
 
-    inputThread(ServerSocket serverSocket, int localPort, BlockingQueue messageQueue) {
+    InputThread(ServerSocket serverSocket, int localPort, BlockingQueue messageQueue) {
         super();
         this.serverSocket = serverSocket;
         this.localPort = localPort;

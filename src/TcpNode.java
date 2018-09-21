@@ -46,8 +46,8 @@ public class TcpNode {
         }
         System.out.println("Listening to serverSocket for requests on port " + localPort);
         //Create a new Thread for the incoming messages and one for sending of messages
-        new outputThread(localPort, nextHostIP, nextPort, messageQueue).start();
-        new inputThread(serverSocket, localPort, messageQueue).start();
+        new OutputThread(localPort, nextHostIP, nextPort, messageQueue).start();
+        new InputThread(serverSocket, localPort, messageQueue).start();
     }
 
 }

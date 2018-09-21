@@ -27,7 +27,7 @@ class outputThread extends Thread {
                 break;
             } catch (IOException e) {
                 System.out.println("Creating outSocket failed");
-                try{ Thread.sleep(1000); } catch (InterruptedException i) {
+                try{ Thread.sleep(5000); } catch (InterruptedException i) {
                     e.printStackTrace();
                 }
                 //e.printStackTrace();

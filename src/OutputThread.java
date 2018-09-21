@@ -18,30 +18,38 @@ class OutputThread extends Thread {
         this.messageQueue = messageQueue;
         this.localPort = localPort;
     }
+
     @Override
     public void run() {
+
         //Make an outSocket
         Socket outSocket;
         while (true) {
+
             try {
+
                 outSocket = new Socket(nextHostIP, nextPort);
                 System.out.println("outSocket created");
                 break;
             } catch (IOException e) {
                 System.out.println("Creating outSocket failed");
+
                 try{ Thread.sleep(2000); } catch (InterruptedException i) {
                     e.printStackTrace();
                 }
-                //e.printStackTrace();
             }
         }
+
         MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + localPort);
+
         String receivedMessage;
         String messageToSend;
         boolean firstMessage = true;
         while (true) {
+
             if (!firstMessage) {
                 try {
+
                     receivedMessage = messageQueue.take();
                     messageToSend = protocol.processInput(receivedMessage);
                 } catch (InterruptedException e) {
@@ -53,20 +61,28 @@ class OutputThread extends Thread {
                     e.printStackTrace();
                     return;
                 }
+
             }else {
 
                 try {
+
                     messageToSend = protocol.processInput("NEW_NODE");
                 } catch (IllegalArgumentException e) {
                     System.out.println("Message given was not following format");
                     e.printStackTrace();
                     return;
                 }
+
                 firstMessage = false;
             }
+
             if (messageToSend != null ) {
+
                 byte[] byteMessage = messageToSend.getBytes();
+                System.out.println(byteMessage.length);
+
                 try {
+
                     OutputStream outputStream = outSocket.getOutputStream();
                     outputStream.write(byteMessage);
                 } catch (IOException e) {

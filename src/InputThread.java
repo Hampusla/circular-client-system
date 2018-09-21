@@ -57,7 +57,7 @@ class InputThread extends Thread {
                 //Read what is in the inputStream and store as a byte[]
                 int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
 
-                while (lengthOfByteMessage != 100){
+                while (lengthOfByteMessage != 100) {
                     lengthOfByteMessage = lengthOfByteMessage +
                             inputStream.read(byteMessage, lengthOfByteMessage, 100);
                 }

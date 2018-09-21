@@ -4,8 +4,7 @@ import java.net.*;
 
 public class UdpNode {
 
-    public static void main(String argc[])
-         throws UnknownHostException, InterruptedException{
+    public static void main(String argc[]) throws UnknownHostException {
 
         //Create port and host for self
         int port = Integer.parseInt(argc[0]);
@@ -31,6 +30,7 @@ public class UdpNode {
         }
 
         System.out.println("Socket made");
+
         //Create Datagram Packets to be used.
         DatagramPacket rcdp = new DatagramPacket(new byte[100], 100);
         DatagramPacket sndp;
@@ -69,6 +69,7 @@ public class UdpNode {
 
         }
 
+        //Disable sockets timeout
         try {
             datagramSocket.setSoTimeout(0);
         } catch (SocketException e) {

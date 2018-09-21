@@ -79,7 +79,6 @@ class OutputThread extends Thread {
             if (messageToSend != null ) {
 
                 byte[] byteMessage = messageToSend.getBytes();
-                System.out.println(byteMessage.length);
 
                 try {
 

@@ -165,7 +165,8 @@ public class TcpNode {
                         OutputStream outputStream = outSocket.getOutputStream();
                         outputStream.write(byteMessage);
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        System.out.printf("Socket disconnected. Shutting down");
+                        break;
                     }
                 }
             }

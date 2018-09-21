@@ -51,4 +51,126 @@ public class TcpNode {
         new outputThread(localPort, nextHostIP, nextPort, messageQueue).start();
         new inputThread(serverSocket, localPort, messageQueue).start();
     }
+
+    class inputThread extends Thread {
+        ServerSocket serverSocket;
+        int localPort;
+        Socket inSocket;
+        BlockingQueue messageQueue;
+        inputThread(ServerSocket serverSocket, int localPort, BlockingQueue messageQueue) {
+            super();
+            this.serverSocket = serverSocket;
+            this.localPort = localPort;
+            this.messageQueue = messageQueue;
+        }
+        @Override
+        public void run() {
+            while (true) {
+                //Create a connection to a client using serverSocket.*/
+                try {
+                    inSocket = serverSocket.accept();
+                    break;
+                } catch (IOException e) {
+                    System.err.println("Oopsie daisy something went wrong in accept()... trying again!");
+                }
+            }
+            System.out.println("Connection via inSocket established!");
+            byte[] byteMessage = new byte[100];
+            InputStream inputStream;
+            try {
+                inputStream = inSocket.getInputStream();
+            } catch (IOException e) {
+                System.err.println("Fail when making getting inputStream");
+                e.printStackTrace();
+                return;
+            }
+            while (true) {
+                try {
+                    //Read what is in the inputStream and store as a byte[]
+                    int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
+                    while (lengthOfByteMessage != 100){
+                        lengthOfByteMessage = lengthOfByteMessage +
+                                inputStream.read(byteMessage, lengthOfByteMessage, 100);
+                    }
+                    //Translate the byte[] to a String message and put it in the messageQueue
+                    String message = new String(byteMessage);
+                    messageQueue.put(message);
+                } catch (InterruptedException | IOException e) {
+                    System.err.println("Oh no! Something went wrong when getting message from inSocket");
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+    class outputThread extends Thread {
+        Socket outSocket;
+        InetAddress nextHostIP;
+        int nextPort;
+        int localport;
+        BlockingQueue<String> messageQueue;
+        outputThread(int localport, InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
+            super();
+            this.nextHostIP = nextHostIP;
+            this.nextPort = nextPort;
+            this.messageQueue = messageQueue;
+            this.localport = localport;
+        }
+        @Override
+        public void run() {
+            //Make an outSocket
+            while (true) {
+                try {
+                    outSocket = new Socket(nextHostIP, nextPort);
+                    System.out.println("outSocket created");
+                    break;
+                } catch (IOException e) {
+                    System.out.println("Creating outSocket failed");
+                    try{ Thread.sleep(5000); } catch (InterruptedException i) {
+                        e.printStackTrace();
+                    }
+                    //e.printStackTrace();
+                }
+            }
+            MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + localport);
+            String receivedMessage;
+            String messageToSend;
+            boolean firstMessage = true;
+            while (true) {
+                if (!firstMessage) {
+                    try {
+                        receivedMessage = messageQueue.take();
+                        messageToSend = protocol.processInput(receivedMessage);
+                    } catch (InterruptedException e) {
+                        System.err.println("Something went wrong when trying to retrieve message from queue");
+                        e.printStackTrace();
+                        return;
+                    }catch (IllegalArgumentException e) {
+                        System.out.println("Message given was not following format");
+                        e.printStackTrace();
+                        return;
+                    }
+                }else {
+
+                    try {
+                        messageToSend = protocol.processInput("NEW_NODE");
+                    } catch (IllegalArgumentException e) {
+                        System.out.println("Message given was not following format");
+                        e.printStackTrace();
+                        return;
+                    }
+                    firstMessage = false;
+                }
+                if (messageToSend != null ) {
+                    byte[] byteMessage = messageToSend.getBytes();
+                    try {
+                        OutputStream outputStream = outSocket.getOutputStream();
+                        outputStream.write(byteMessage);
+                    } catch (IOException e) {
+                        System.out.printf("Socket disconnected. Shutting down");
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }

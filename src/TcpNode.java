@@ -86,6 +86,11 @@ public class TcpNode {
             }
             while (true) {
                 try {
+
+                    if (!serverSocket.isBound()) {
+                        System.out.println("Socket disconnected. Shutting down");
+                        break;
+                    }
                     //Read what is in the inputStream and store as a byte[]
                     int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
                     while (lengthOfByteMessage != 100){

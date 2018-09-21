@@ -1,5 +1,3 @@
-//TODO ska vi ha något som avslutar programmet eller ska det endast göras om man terminerar processen?
-//TODO Ska vi ha något som hanterar om kopplingen mellan noderna bryts?
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -140,7 +138,7 @@ public class TcpNode {
                         receivedMessage = messageQueue.take();
                         messageToSend = protocol.processInput(receivedMessage);
                     } catch (InterruptedException e) {
-                        //TODO make a really good catch here or put in while??
+                        System.err.println("Something went wrong when trying to retrieve message from queue");
                         e.printStackTrace();
                         return;
                     }catch (IllegalArgumentException e) {

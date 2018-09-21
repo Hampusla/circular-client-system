@@ -5,11 +5,13 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
 class outputThread extends Thread {
-    Socket outSocket;
-    InetAddress nextHostIP;
-    int nextPort;
-    int localport;
+
+    private Socket outSocket;
+    private InetAddress nextHostIP;
+    private int nextPort;
+    private int localport;
     BlockingQueue<String> messageQueue;
+
     outputThread(int localport, InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
         super();
         this.nextHostIP = nextHostIP;

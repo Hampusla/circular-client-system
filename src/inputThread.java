@@ -5,16 +5,19 @@ import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
 
 class inputThread extends Thread {
-    ServerSocket serverSocket;
-    int localPort;
-    Socket inSocket;
-    BlockingQueue messageQueue;
+
+    private ServerSocket serverSocket;
+    private int localPort;
+    private Socket inSocket;
+    private BlockingQueue messageQueue;
+
     inputThread(ServerSocket serverSocket, int localPort, BlockingQueue messageQueue) {
         super();
         this.serverSocket = serverSocket;
         this.localPort = localPort;
         this.messageQueue = messageQueue;
     }
+
     @Override
     public void run() {
         while (true) {

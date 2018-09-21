@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.BlockingQueue;
@@ -39,8 +40,14 @@ class OutputThread extends Thread {
                 }
             }
         }
-
-        MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + localPort);
+        MessageProtocol protocol;
+        try {
+            protocol = new MessageProtocol(
+                    Inet4Address.getLocalHost().getCanonicalHostName() + "," + localPort);
+        } catch (Exception e) {
+            System.out.println("Cant get localhost");
+            return;
+        }
 
         String receivedMessage;
         String messageToSend;

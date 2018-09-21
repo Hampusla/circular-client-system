@@ -38,7 +38,7 @@ public class UdpNode {
         System.out.println("Arguments validated. Creating Node");
 
         //Create MessageProtocol
-        String socketID = host + "," + port;
+        String socketID = Inet4Address.getLocalHost().getCanonicalHostName() + "," + port;
         MessageProtocol messageProtocol = new MessageProtocol(socketID);
 
         //Create Datagram Socket

@@ -126,8 +126,8 @@ public class MessageProtocol {
 
             roundCounter++;
             if((roundCounter % 1000) == 0) {
-                long time = System.currentTimeMillis() - startTime;
-                System.out.println("Time per round " + time/1000);
+                long time = System.currentTimeMillis() - startTime/1000;
+                System.out.println("Time per round " + time);
                 startTime = System.currentTimeMillis();
 
             }

@@ -7,9 +7,9 @@ import java.util.concurrent.BlockingQueue;
 class InputThread extends Thread {
 
     private ServerSocket serverSocket;
-    private BlockingQueue messageQueue;
+    private BlockingQueue<String> messageQueue;
 
-    InputThread(ServerSocket serverSocket, BlockingQueue messageQueue) {
+    InputThread(ServerSocket serverSocket, BlockingQueue<String> messageQueue) {
         super();
         this.serverSocket = serverSocket;
         this.messageQueue = messageQueue;

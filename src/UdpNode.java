@@ -6,16 +6,39 @@ public class UdpNode {
 
     public static void main(String argc[]) throws UnknownHostException {
 
-        //Create port and host for self
-        int port = Integer.parseInt(argc[0]);
-        InetAddress Host = InetAddress.getLocalHost();
+        //Validate the number of arguments
+        if (argc.length != 3) {
+            System.err.println("Invalid number of arguments! Input should be on the following format: " +
+                    "local-port next-host next-port");
+            return;
+        }
 
-        //Create port and  ip for receiver
-        InetAddress nextHost = InetAddress.getByName(argc[1]);
-        int nextPort = Integer.parseInt(argc[2]);
+        //Validate (arg[0], arg[2]) and save as ports
+        int port, nextPort;
+        try {
+
+            port = Integer.parseInt(argc[0]);
+            nextPort = Integer.parseInt(argc[2]);
+        } catch (NumberFormatException e) {
+            System.err.println("Argument 1 and 3 must be integers!");
+            return;
+        }
+
+        //Create InetAdress using arg[1]
+        InetAddress host, nextHost;
+        try {
+
+            host = InetAddress.getLocalHost();
+            nextHost = InetAddress.getByName(argc[1]);
+        } catch (UnknownHostException e) {
+            System.err.println("Error when creating a InetAdress from argc[1]! Exiting...");
+            return;
+        }
+
+        System.out.println("Arguments validated. Creating Node");
 
         //Create MessageProtocol
-        String socketID = Host + "," + port;
+        String socketID = host + "," + port;
         MessageProtocol messageProtocol = new MessageProtocol(socketID);
 
         //Create Datagram Socket

@@ -6,22 +6,22 @@ import java.util.concurrent.BlockingQueue;
 
 class OutputThread extends Thread {
 
-    private Socket outSocket;
     private InetAddress nextHostIP;
     private int nextPort;
-    private int localport;
+    private int localPort;
     BlockingQueue<String> messageQueue;
 
-    OutputThread(int localport, InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
+    OutputThread(int localPort, InetAddress nextHostIP, int nextPort, BlockingQueue messageQueue) {
         super();
         this.nextHostIP = nextHostIP;
         this.nextPort = nextPort;
         this.messageQueue = messageQueue;
-        this.localport = localport;
+        this.localPort = localPort;
     }
     @Override
     public void run() {
         //Make an outSocket
+        Socket outSocket;
         while (true) {
             try {
                 outSocket = new Socket(nextHostIP, nextPort);
@@ -35,7 +35,7 @@ class OutputThread extends Thread {
                 //e.printStackTrace();
             }
         }
-        MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + localport);
+        MessageProtocol protocol = new MessageProtocol( outSocket.getLocalSocketAddress() + "," + localPort);
         String receivedMessage;
         String messageToSend;
         boolean firstMessage = true;

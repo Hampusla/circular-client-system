@@ -48,7 +48,6 @@ public class TcpNode {
             System.err.println("Fail when creating the serverSocket on port: " + localPort + ". Exiting...");
             return;
         }
-        //TODO not really a todo but should i change the names of inSocket and outSocket to something more descriptive?
         System.out.println("Listening to serverSocket for requests on port " + localPort);
         //Create a new Thread for the incoming messages and one for sending of messages
         new outputThread(localPort, nextHostIP, nextPort, messageQueue).start();
@@ -89,16 +88,14 @@ public class TcpNode {
             }
             while (true) {
                 try {
-                    //TODO Use lengthOfByteMessage int for verification?
                     //Read what is in the inputStream and store as a byte[]
                     int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
-                    if (lengthOfByteMessage != 100) {
-                        //TODO göör något
+                    while (lengthOfByteMessage != 100){
+                        lengthOfByteMessage = lengthOfByteMessage +
+                                inputStream.read(byteMessage, lengthOfByteMessage, 100);
                     }
-                    //TODO Validate the incoming message
                     //Translate the byte[] to a String message and put it in the messageQueue
                     String message = new String(byteMessage);
-                    //TODO If Queue is full put() will wait until there is room for the message... Can create packet loss
                     messageQueue.put(message);
                 } catch (InterruptedException | IOException e) {
                     System.err.println("Oh no! Something went wrong when getting message from inSocket");
@@ -122,7 +119,7 @@ public class TcpNode {
         }
         @Override
         public void run() {
-            /*Try making a socket which connects to the next Node*/
+            //Make an outSocket
             while (true) {
                 try {
                     outSocket = new Socket(nextHostIP, nextPort);

@@ -1,5 +1,5 @@
-//TODO fix javadoc
 //TODO ska vi ha något som avslutar programmet eller ska det endast göras om man terminerar processen?
+//TODO Ska vi ha något som hanterar om kopplingen mellan noderna bryts?
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -38,18 +38,19 @@ public class TcpNode {
     }
 
     private TcpNode(int localPort, InetAddress nextHostIP, int nextPort) {
+        //Create a ServerSocket which listens to the given localPort
         BlockingQueue messageQueue = new ArrayBlockingQueue<String>(10);
         ServerSocket serverSocket;
         try {
-            //Skapar en ServerSocket som lyssnar efter en förfrågan om en koppling till porten localPort....
             serverSocket = new ServerSocket(localPort);
+            serverSocket.setReuseAddress(true);
         } catch (IOException e) {
             System.err.println("Fail when creating the serverSocket on port: " + localPort + ". Exiting...");
             return;
         }
         //TODO not really a todo but should i change the names of inSocket and outSocket to something more descriptive?
         System.out.println("Listening to serverSocket for requests on port " + localPort);
-        /*Create the outSocket*/
+        //Create a new Thread for the incoming messages and one for sending of messages
         new outputThread(localPort, nextHostIP, nextPort, messageQueue).start();
         new inputThread(serverSocket, localPort, messageQueue).start();
     }
@@ -67,12 +68,10 @@ public class TcpNode {
         }
         @Override
         public void run() {
-            /*Create the inSocket*/
             while (true) {
-                /*Try creating a connection to a client sending a request to the port that serverSocket is listening to.*/
+                //Create a connection to a client using serverSocket.*/
                 try {
                     inSocket = serverSocket.accept();
-                    System.out.println("Created connection to inSocket!");
                     break;
                 } catch (IOException e) {
                     System.err.println("Oopsie daisy something went wrong in accept()... trying again!");
@@ -93,10 +92,12 @@ public class TcpNode {
                     //TODO Use lengthOfByteMessage int for verification?
                     //Read what is in the inputStream and store as a byte[]
                     int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
+                    if (lengthOfByteMessage != 100) {
+                        //TODO göör något
+                    }
                     //TODO Validate the incoming message
                     //Translate the byte[] to a String message and put it in the messageQueue
                     String message = new String(byteMessage);
-                    System.out.println("Got a new message: " + message + " putting it in messageQueue");
                     //TODO If Queue is full put() will wait until there is room for the message... Can create packet loss
                     messageQueue.put(message);
                 } catch (InterruptedException | IOException e) {
@@ -124,7 +125,6 @@ public class TcpNode {
             /*Try making a socket which connects to the next Node*/
             while (true) {
                 try {
-                    System.out.println("Creating outSocket to nextHost: " + nextHostIP + " on nextPort: " + nextPort);
                     outSocket = new Socket(nextHostIP, nextPort);
                     System.out.println("outSocket created");
                     break;
@@ -163,7 +163,6 @@ public class TcpNode {
                     firstMessage = false;
                 }
                 if (messageToSend != null ) {
-                    System.out.println("Sending message: " + messageToSend + "To next node");
                     byte[] byteMessage = messageToSend.getBytes();
                     try {
                         OutputStream outputStream = outSocket.getOutputStream();

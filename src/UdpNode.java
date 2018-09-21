@@ -84,9 +84,6 @@ public class UdpNode {
             String input = new String(rcdp.getData());
             String output;
 
-            System.out.println("Got a new message: " + input + " putting it in messageQueue");
-
-
             try {
                 output = messageProtocol.processInput(input);
             } catch (IllegalArgumentException e) {
@@ -96,8 +93,6 @@ public class UdpNode {
             }
 
             if (output != null) {
-
-                System.out.println("Sending message: " + output + "To next node");
 
                 byte[] outData = output.getBytes();
 

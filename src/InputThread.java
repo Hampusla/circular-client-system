@@ -40,6 +40,12 @@ class InputThread extends Thread {
             return;
         }
         while (true) {
+
+            if (!serverSocket.isBound()) {
+                System.out.println("Socket disconnected. Shutting down");
+                return;
+            }
+
             try {
                 //Read what is in the inputStream and store as a byte[]
                 int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);

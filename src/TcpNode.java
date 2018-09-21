@@ -1,6 +1,4 @@
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.net.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -86,11 +84,6 @@ public class TcpNode {
             }
             while (true) {
                 try {
-
-                    if (!serverSocket.isBound()) {
-                        System.out.println("Socket disconnected. Shutting down");
-                        break;
-                    }
                     //Read what is in the inputStream and store as a byte[]
                     int lengthOfByteMessage = inputStream.read(byteMessage, 0, 100);
                     while (lengthOfByteMessage != 100){
